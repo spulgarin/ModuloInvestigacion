@@ -1,0 +1,376 @@
+@page "/areaConocimiento"
+
+@using BlazorFrontEnd.Services
+
+@inject ApiService ApiService
+
+@inject IJSRuntime JSRuntime
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestionar <b>area de conocimiento</b></h2>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#addConociminetoModal" class="btn btn-success" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit()">
+                            <i class="material-icons">&#xE147;</i> <span>Añadir Nuevo area de conocimiento</span>
+                        </a>
+
+                        <a href="#consultarConociminetoModal" class="btn btn-success" data-bs-toggle="modal" @onclick="PrepareForConsulta">
+                            <i class="material-icons">&#xE8B6;</i> <span>Consultar el area de conocimiento</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (conocimineto == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!conocimineto.Any())
+            {
+                <p>No hay areas de conocimientos registrados.</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Gran area</th>
+                            <th>Area</th>
+                            <th>Gran area</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var conocimineto in conocimineto)
+                        {
+                            <tr>
+                                <td>@conocimineto["id"]</td>
+                                <td>@conocimineto["gran_area"]</td>
+                                <td>@conocimineto["area"]</td>
+                                <td>@conocimineto["disciplina"]</td>
+                                <td>
+                                    <a href="#editConociminetoModal" class="edit" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit(conocimineto)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
+                                    </a>
+
+                                    <a href="#deleteConociminetoModal" class="delete" data-bs-toggle="modal" @onclick="() => SetConociminetoToDelete(conocimineto)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir/Editar el area de conocimiento -->
+<div class="modal fade" id="addConociminetoModal" tabindex="-1" role="dialog" aria-labelledby="addConociminetoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="@currentConocimineto" OnValidSubmit="SaveConocimineto">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addConociminetoModalLabel">@(isNewConocimineto ? "Añadir" : "Editar") area de conocimiento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <InputText class="form-control" @bind-Value="id"/>
+                        <ValidationMessage For="@(() => id)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Gran Area</label>
+                        <InputText class="form-control" @bind-Value="gran_area" />
+                        <ValidationMessage For="@(() => gran_area)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Area</label>
+                        <InputText class="form-control" @bind-Value="area" />
+                        <ValidationMessage For="@(() => area)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Disciplina</label>
+                        <InputText class="form-control" @bind-Value="disciplina" />
+                        <ValidationMessage For="@(() => disciplina)" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@(isNewConocimineto ? "Añadir" : "Guardar")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para Eliminar el area de conocimiento -->
+<div class="modal fade" id="deleteConociminetoModal" tabindex="-1" role="dialog" aria-labelledby="deleteConociminetoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConociminetoModalLabel">Eliminar el area de conocimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar este area de conocimiento?</p>
+                <p class="text-warning"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteConocimineto">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Consultar el area de conocimiento -->
+<div class="modal fade" id="consultarConociminetoModal" tabindex="-1" role="dialog" aria-labelledby="consultarConociminetoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultarConociminetoModalLabel">Consultar el area de conocimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Código</label>
+                    <input type="text" class="form-control" @bind="consultaId" @bind:event="oninput"/>
+                </div>
+                <div class="form-group">
+                    <label>Gran area</label>
+                    <input type="text" class="form-control" @bind="consultaGran_area" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Area</label>
+                    <input type="text" class="form-control" @bind="consultaArea" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Disciplina</label>
+                    <input type="text" class="form-control" @bind="consultaDisciplina" readonly/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConsultarConocimineto">Consultar</button>
+                <button type="button" class="btn btn-warning" @onclick="ModificarConociminetoConsultada" disabled="@(!conociminetoEncontrada)">Modificar</button>
+                <button type="button" class="btn btn-danger" @onclick="EliminarConociminetoConsultada" disabled="@(!conociminetoEncontrada)">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<Dictionary<string, object>> conocimineto = new List<Dictionary<string, object>>();
+    
+    private Dictionary<string, object> currentConocimineto = new Dictionary<string, object>();
+
+    private bool isNewConocimineto = true;
+
+    private bool conociminetoEncontrada = false;
+
+    private string id = "";
+
+    private string gran_area = "";
+
+    private string area = "";
+
+    private string disciplina = "";
+
+    private string consultaId = "";
+
+    private string consultaGran_area = "";
+
+    private string consultaArea = "";
+
+    private string consultaDisciplina = "";
+
+    private string path = "api/proyecto/area_conocimiento";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadConocimineto();
+    }
+
+    private async Task LoadConocimineto()
+    {
+        try
+        {
+            conocimineto = await ApiService.GetDataAsync(path);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar area de conocimiento: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar area de conocimiento. Por favor, intente nuevamente.");
+        }
+    }
+
+    private void PrepareForAddOrEdit(Dictionary<string, object>? conocimineto = null)
+    {
+
+        isNewConocimineto = conocimineto == null;
+        currentConocimineto = conocimineto ?? new Dictionary<string, object>();
+
+        id = currentConocimineto.TryGetValue("id", out var c) ? c?.ToString() ?? "" : "";
+        gran_area = currentConocimineto.TryGetValue("gran_area", out var n) ? n?.ToString() ?? "" : "";
+        area = currentConocimineto.TryGetValue("area", out var e) ? e?.ToString() ?? "" : "";
+        disciplina = currentConocimineto.TryGetValue("disciplina", out var j) ? j?.ToString() ?? "" : "";
+  
+        JSRuntime.InvokeVoidAsync("showModal", "addConociminetoModal");
+    }
+
+    private void PrepareForConsulta()
+    {
+        consultaId = "";
+        consultaGran_area= "";
+        consultaArea= "";
+        consultaDisciplina= "";
+        conociminetoEncontrada = false;
+    }
+
+    private void SetConociminetoToDelete(Dictionary<string, object> conocimineto)
+    {
+        currentConocimineto = conocimineto;
+        JSRuntime.InvokeVoidAsync("showModal", "deleteConociminetoModal");
+    }
+
+    private async Task SaveConocimineto()
+    {
+        try
+        {
+            currentConocimineto["id"] = id;
+            currentConocimineto["gran_area"] = gran_area;
+            currentConocimineto["area"] = area;
+            currentConocimineto["disciplina"] = disciplina;
+            bool success;
+            if (isNewConocimineto)
+            {
+                success = await ApiService.AddEntityAsync(path, currentConocimineto);
+
+            }
+            else
+            {
+                success = await ApiService.EditEntityAsync(path + "/id", id, currentConocimineto);
+            }
+
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("hideModal", "addConociminetoModal");
+                await LoadConocimineto();
+
+                id = gran_area = area = disciplina = string.Empty;
+                currentConocimineto = new Dictionary<string, object>();
+                isNewConocimineto = true;
+
+                StateHasChanged();
+
+                await JSRuntime.InvokeVoidAsync("alert", "Operación realizada con éxito.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error al guardar el area de conocimiento. Por favor, intente nuevamente.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar Conocimineto: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar el area de conocimiento. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task DeleteConocimineto()
+    {
+        try
+        {
+            if (currentConocimineto.TryGetValue("id", out var idObj) && idObj is string idStr)
+            {
+                bool success = await ApiService.DeleteEntityAsync(path + "/id", idStr);
+
+                if (success)
+                {
+                    await JSRuntime.InvokeVoidAsync("hideModal", "deleteConociminetoModal");
+                    await LoadConocimineto();
+                    await JSRuntime.InvokeVoidAsync("alert", "area de conocimiento eliminado con éxito.");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar el area de conocimiento. Por favor, intente nuevamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar el area de conocimiento: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar el area de conocimiento. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ConsultarConocimineto()
+    {
+        try
+        {
+            var resultado = await ApiService.GetDataAsync(path+$"/id/{consultaId}");
+            if (resultado.Any())
+            {
+                var conociminetoConsultada = resultado.First();
+                consultaGran_area = conociminetoConsultada["gran_area"]?.ToString() ?? "";
+                consultaArea = conociminetoConsultada["area"]?.ToString() ?? "";
+                consultaDisciplina = conociminetoConsultada["disciplina"]?.ToString() ?? "";
+                conociminetoEncontrada = true;
+            }
+            else
+            {
+                consultaId = "";
+                consultaGran_area= "";
+                consultaArea= "";
+                consultaDisciplina = "";
+                conociminetoEncontrada = false;
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró ninguna objetivo de desarrollo conocimineto con ese código.");
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al consultar conocimineto: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al consultar el objetivo de desarrollo conocimineto. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ModificarConociminetoConsultada()
+    {
+
+        PrepareForAddOrEdit(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["gran_area"] = consultaGran_area,
+            ["area"] = consultaArea,
+            ["disciplina"] = consultaDisciplina
+        });
+
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarConociminetoModal");
+
+    }
+
+    private async Task EliminarConociminetoConsultada()
+    {
+        SetConociminetoToDelete(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["gran_area"] = consultaGran_area,
+            ["area"] = consultaArea,
+            ["disciplina"] = consultaDisciplina
+        });
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarConociminetoModal");
+    }
+}

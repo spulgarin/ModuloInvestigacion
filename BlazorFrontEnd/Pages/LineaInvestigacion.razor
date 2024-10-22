@@ -1,0 +1,351 @@
+@page "/lineaInvestigacion"
+
+@using BlazorFrontEnd.Services
+
+@inject ApiService ApiService
+
+@inject IJSRuntime JSRuntime
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestionar <b>Linea de investigacion</b></h2>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#addInvestigacionModal" class="btn btn-success" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit()">
+                            <i class="material-icons">&#xE147;</i> <span>Añadir Nueva Linea investigacion</span>
+                        </a>
+
+                        <a href="#consultarInvestigacionModal" class="btn btn-success" data-bs-toggle="modal" @onclick="PrepareForConsulta">
+                            <i class="material-icons">&#xE8B6;</i> <span>Consultar la linea investigacion</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (investigacion == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!investigacion.Any())
+            {
+                <p>No hay linea de investigacion registrados.</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Descripcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var investigacion in investigacion)
+                        {
+                            <tr>
+                                <td>@investigacion["id"]</td>
+                                <td>@investigacion["nombre"]</td>
+                                <td>@investigacion["descripcion"]</td>
+                                <td>
+                                    <a href="#editInvestigacionModal" class="edit" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit(investigacion)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
+                                    </a>
+
+                                    <a href="#deleteInvestigacionModal" class="delete" data-bs-toggle="modal" @onclick="() => SetInvestigacionToDelete(investigacion)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir/Editar la linea Investigacion -->
+<div class="modal fade" id="addInvestigacionModal" tabindex="-1" role="dialog" aria-labelledby="addInvestigacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="@currentInvestigacion" OnValidSubmit="SaveInvestigacion">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addInvestigacionModalLabel">@(isNewInvestigacion ? "Añadir" : "Editar") Linea de investigacion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <InputText class="form-control" @bind-Value="id"/>
+                        <ValidationMessage For="@(() => id)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <InputText class="form-control" @bind-Value="nombre" />
+                        <ValidationMessage For="@(() => nombre)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Descripcion</label>
+                        <InputText class="form-control" @bind-Value="descripcion" />
+                        <ValidationMessage For="@(() => descripcion)" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@(isNewInvestigacion ? "Añadir" : "Guardar")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar la linea Investigacion -->
+<div class="modal fade" id="deleteInvestigacionModal" tabindex="-1" role="dialog" aria-labelledby="deleteInvestigacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteInvestigacionModalLabel">Eliminar linea de Investigacion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar esta linea de Investigacion?</p>
+                <p class="text-warning"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteInvestigacion">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Consultar la linea Investigacion -->
+<div class="modal fade" id="consultarInvestigacionModal" tabindex="-1" role="dialog" aria-labelledby="consultarInvestigacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultarInvestigacionModalLabel">Consultar la linea Investigacion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Código</label>
+                    <input type="text" class="form-control" @bind="consultaId" @bind:event="oninput"/>
+                </div>
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" class="form-control" @bind="consultaNombre" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Descripcion</label>
+                    <input type="text" class="form-control" @bind="consultaDescripcion" readonly/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConsultarInvestigacion">Consultar</button>
+                <button type="button" class="btn btn-warning" @onclick="ModificarInvestigacionConsultada" disabled="@(!investigacionEncontrada)">Modificar</button>
+                <button type="button" class="btn btn-danger" @onclick="EliminarInvestigacionConsultada" disabled="@(!investigacionEncontrada)">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Dictionary<string, object>> investigacion = new List<Dictionary<string, object>>();
+    
+    private Dictionary<string, object> currentInvestigacion = new Dictionary<string, object>();
+
+    private bool isNewInvestigacion = true;
+
+    private bool investigacionEncontrada = false;
+
+    private string id = "";
+
+    private string nombre = "";
+
+    private string descripcion = "";
+
+    private string consultaId = "";
+
+    private string consultaNombre = "";
+
+    private string consultaDescripcion = "";
+
+    private string path = "api/proyecto/linea_Investigacion";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInvestigacion();
+    }
+
+    private async Task LoadInvestigacion()
+    {
+        try
+        {
+            investigacion = await ApiService.GetDataAsync(path);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar la linea de investigacion: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar la linea de investigacion. Por favor, intente nuevamente.");
+        }
+    }
+
+    private void PrepareForAddOrEdit(Dictionary<string, object>? investigacion = null)
+    {
+
+        isNewInvestigacion = investigacion == null;
+        currentInvestigacion = investigacion ?? new Dictionary<string, object>();
+
+        id = currentInvestigacion.TryGetValue("id", out var c) ? c?.ToString() ?? "" : "";
+        nombre = currentInvestigacion.TryGetValue("nombre", out var n) ? n?.ToString() ?? "" : "";
+        descripcion = currentInvestigacion.TryGetValue("descripcion", out var e) ? e?.ToString() ?? "" : "";
+
+        JSRuntime.InvokeVoidAsync("showModal", "addInvestigacionModal");
+    }
+
+    private void PrepareForConsulta()
+    {
+        consultaId = "";
+        consultaNombre= "";
+        consultaDescripcion= "";
+        investigacionEncontrada = false;
+    }
+
+    private void SetInvestigacionToDelete(Dictionary<string, object> investigacion)
+    {
+        currentInvestigacion = investigacion;
+        JSRuntime.InvokeVoidAsync("showModal", "deleteInvestigacionModal");
+    }
+
+    private async Task SaveInvestigacion()
+    {
+        try
+        {
+            currentInvestigacion["id"] = id;
+            currentInvestigacion["nombre"] = nombre;
+            currentInvestigacion["descripcion"] = descripcion;
+            bool success;
+            if (isNewInvestigacion)
+            {
+                success = await ApiService.AddEntityAsync(path, currentInvestigacion);
+
+            }
+            else
+            {
+                success = await ApiService.EditEntityAsync(path + "/id", id, currentInvestigacion);
+            }
+
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("hideModal", "addInvestigacionModal");
+                await LoadInvestigacion();
+
+                id = nombre = descripcion = string.Empty;
+                currentInvestigacion = new Dictionary<string, object>();
+                isNewInvestigacion = true;
+
+                StateHasChanged();
+
+                await JSRuntime.InvokeVoidAsync("alert", "Operación realizada con éxito.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la linea investigacion. Por favor, intente nuevamente.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar investigacion: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la linea investigacion. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task DeleteInvestigacion()
+    {
+        try
+        {
+            if (currentInvestigacion.TryGetValue("id", out var idObj) && idObj is string idStr)
+            {
+                bool success = await ApiService.DeleteEntityAsync(path + "/id", idStr);
+
+                if (success)
+                {
+                    await JSRuntime.InvokeVoidAsync("hideModal", "deleteInvestigacionModal");
+                    await LoadInvestigacion();
+                    await JSRuntime.InvokeVoidAsync("alert", "linea Investigacion eliminado con éxito.");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la linea de Investigacion. Por favor, intente nuevamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar la linea Investigacion: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la linea de Investigacion. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ConsultarInvestigacion()
+    {
+        try
+        {
+            var resultado = await ApiService.GetDataAsync(path+$"/id/{consultaId}");
+            if (resultado.Any())
+            {
+                var investigacionConsultada = resultado.First();
+                consultaNombre = investigacionConsultada["nombre"]?.ToString() ?? "";
+                consultaDescripcion = investigacionConsultada["descripcion"]?.ToString() ?? "";
+                investigacionEncontrada = true;
+            }
+            else
+            {
+                consultaId = "";
+                consultaNombre= "";
+                consultaDescripcion= "";
+                investigacionEncontrada = false;
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró ninguna linea investigacion con ese código.");
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al consultar investigacion: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al consultar la linea investigacion. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ModificarInvestigacionConsultada()
+    {
+
+        PrepareForAddOrEdit(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["nombre"] = consultaNombre,
+            ["descripcion"] = consultaDescripcion
+        });
+
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarInvestigacionModal");
+
+    }
+
+    private async Task EliminarInvestigacionConsultada()
+    {
+        SetInvestigacionToDelete(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["nombre"] = consultaNombre,
+            ["descripcion"] = consultaDescripcion
+        });
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarInvestigacionModal");
+    }
+}

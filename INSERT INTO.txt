@@ -1,0 +1,354 @@
+-- Insertar datos en la tabla universidad
+INSERT INTO universidad (id, nombre, tipo, ciudad) 
+VALUES 
+(1, 'Universidad Nacional', 'Pública', 'Bogotá'),
+(2, 'Universidad de Antioquia', 'Pública', 'Medellín'),
+(3, 'Universidad EAFIT', 'Privada', 'Medellín'),
+(4, 'Instituto Tecnológico Metropolitano - ITM', 'Pública', 'Medellín'),
+(5, 'Universidad de San Buenaventura', 'Privada', 'Medellín');
+
+-- Insertar datos en la tabla facultad
+INSERT INTO facultad (id, nombre, tipo, fecha_fun, universidad) 
+VALUES 
+(1, 'Facultad de Ingeniería', 'Académica', '1975-06-10', 1),
+(2, 'Facultad de Ciencias', 'Académica', '1980-04-15', 2),
+(3, 'Facultad de Administración', 'Académica', '1985-09-12', 3),
+(4, 'Facultad de Tecnologías', 'Académica', '1995-07-20', 4),
+(5, 'Facultad de Humanidades y Ciencias', 'Académica', '1970-02-10', 5);
+
+-- Insertar datos en la tabla programa
+INSERT INTO programa (id, nombre, tipo, nivel, fecha_creacion, fecha_cierre, numero_cohortes, cant_graduados, fecha_actualizacion, ciudad, facultad) 
+VALUES 
+(1, 'Ingeniería de Sistemas', 'Pregrado', 'Profesional', '2000-01-15', NULL, '15', '200', '2024-09-20', 'Bogotá', 1),
+(2, 'Biología', 'Pregrado', 'Profesional', '1998-05-10', NULL, '20', '300', '2024-09-20', 'Medellín', 2),
+(3, 'Administración de Negocios', 'Pregrado', 'Profesional', '1995-09-12', NULL, '25', '400', '2024-09-20', 'Medellín', 3),
+(4, 'Tecnología en Electrónica', 'Tecnología', 'Profesional', '2005-03-25', NULL, '10', '150', '2024-09-20', 'Medellín', 4),
+(5, 'Psicología', 'Pregrado', 'Profesional', '1990-07-01', NULL, '30', '500', '2024-09-20', 'Medellín', 5);
+
+-- Insertar datos en la tabla linea_investigacion
+INSERT INTO linea_investigacion (nombre, descripcion) 
+VALUES 
+('Inteligencia Artificial', 'Investigación sobre IA y aprendizaje automático'),
+('Biotecnología', 'Investigación en biotecnología aplicada'),
+('Innovación Empresarial', 'Investigación en estrategias empresariales innovadoras');
+
+-- Insertar datos en la tabla docente
+INSERT INTO docente (cedula, nombres, apellidos, genero, cargo, fecha_nacimiento, correo, telefono, url_cvlac, fecha_actualizacion, escalafon, perfil, cat_minciencia, conv_minciencia, nacionalidaad, linea_investigacion_principal) 
+VALUES 
+(1001, 'Juan', 'Pérez', 'Masculino', 'Profesor Titular', '1970-04-15', 'juan.perez@universidad.edu.co', '3001234567', 'http://cvlac.com/juanperez', '2024-09-20', 'Escalafón A', 'Especialista en IA', 'Investigador Sénior', 'Sí', 'Colombiano', 1),
+(1002, 'María', 'Gómez', 'Femenino', 'Profesora Asociada', '1985-07-20', 'maria.gomez@universidad.edu.co', '3007654321', 'http://cvlac.com/mariagomez', '2024-09-20', 'Escalafón B', 'Especialista en Biotecnología', 'Investigador Asistente', 'No', 'Colombiana', 2),
+(1003, 'Carlos', 'Rodríguez', 'Masculino', 'Profesor Asistente', '1990-10-10', 'carlos.rodriguez@universidad.edu.co', '3012345678', 'http://cvlac.com/carlosrodriguez', '2024-09-20', 'Escalafón C', 'Especialista en Innovación', 'Investigador Asociado', 'Sí', 'Colombiano', 3);
+
+-- Insertar datos en la tabla estudios_realizados
+INSERT INTO estudios_realizados (id, titulo, universidad, fecha, tipo, ciudad, docente, ins_acreditada, metodologia, perfil_egresado, pais) 
+VALUES 
+(1, 'Maestría en IA', 'Universidad Nacional', '2010-06-20', 'Posgrado', 'Bogotá', 1001, 1, 'Presencial', 'Perfil en IA aplicada', 'Colombia'),
+(2, 'Doctorado en Biotecnología', 'Universidad de Antioquia', '2015-11-10', 'Posgrado', 'Medellín', 1002, 1, 'Presencial', 'Perfil en Biotecnología avanzada', 'Colombia'),
+(3, 'Especialización en Innovación', 'EAFIT', '2012-09-15', 'Posgrado', 'Medellín', 1003, 1, 'Presencial', 'Perfil en innovación empresarial', 'Colombia');
+
+-- Insertar datos en la tabla aliado
+INSERT INTO aliado (nit, razon_social, nombre_contacto, correo, telefono, ciudad) 
+VALUES 
+(123456789, 'Empresa Innovadora', 'Laura Torres', 'contacto@empresa.com', '3009876543', 'Medellín'),
+(987654321, 'Soluciones Tecnológicas', 'Pedro Martínez', 'info@soluciones.com', '3101234567', 'Bogotá');
+
+-- Insertar datos en la tabla proyecto
+INSERT INTO proyecto (id, titulo, resumen, presupuesto, tipo_financiacion, tipo_fondos, fecha_inicio, fecha_fin) 
+VALUES 
+(1, 'Proyecto de IA aplicada', 'Desarrollo de IA para mejorar procesos industriales', 5000000, 'Pública', 'Fondos estatales', '2023-01-01', '2024-12-31'),
+(2, 'Proyecto de biotecnología', 'Investigación en biotecnología vegetal', 3000000, 'Privada', 'Fondos privados', '2022-03-15', '2024-09-20');
+
+-- Insertar datos en la tabla tipo_producto
+INSERT INTO tipo_producto (id, categoria, clase, nombre, tipologia) 
+VALUES 
+(1, 'Tecnología', 'Software', 'Aplicación Móvil', 'App'),
+(2, 'Ciencia', 'Artículo', 'Artículo Científico', 'Publicación');
+
+-- Insertar datos en la tabla producto
+INSERT INTO producto (id, nombre, categoria, fecha_entrega, proyecto, tipo_producto) 
+VALUES 
+(1, 'App de IA', 'Tecnología', '2024-01-15', 1, 1),
+(2, 'Artículo sobre biotecnología', 'Ciencia', '2023-12-01', 2, 2);
+
+-- Insertar datos en la tabla termino_clave
+INSERT INTO termino_clave (termino, termino_ingles) 
+VALUES 
+('Inteligencia Artificial', 'Artificial Intelligence'),
+('Biotecnología', 'Biotechnology'),
+('Innovación', 'Innovation');
+
+-- Insertar datos en la tabla area_aplicacion
+INSERT INTO area_aplicacion (id, nombre) 
+VALUES 
+(1, 'Industria 4.0'),
+(2, 'Agricultura Sostenible');
+
+-- Insertar datos en la tabla objetivo_desarrollo_sostenible
+INSERT INTO objetivo_desarrollo_sostenible (id, nombre, categoria) 
+VALUES 
+(1, 'Producción y consumo responsable', 'Economía circular'),
+(2, 'Acción por el clima', 'Medio ambiente');
+
+-- Insertar datos en la tabla area_conocimiento
+INSERT INTO area_conocimiento (id, gran_area, area, disciplina) 
+VALUES 
+(1, 'Ingeniería', 'Tecnología', 'Inteligencia Artificial'),
+(2, 'Ciencias', 'Biología', 'Biotecnología');
+
+-- Insertar datos en la tabla grupo_investigacion
+INSERT INTO grupo_investigacion (id, nombre, url_gruplac, categoria, convocatoria, fecha_fundacion, universidad, interno, ambito) 
+VALUES 
+(1, 'Grupo IA', 'http://gruplac.colciencias.com/ia', 'A', '2022', '2015-05-01', 1, 1, 'Nacional'),
+(2, 'Grupo Biotecnología', 'http://gruplac.colciencias.com/biotec', 'B', '2023', '2017-07-15', 2, 0, 'Internacional');
+
+-- Insertar datos en la tabla semillero
+INSERT INTO semillero (id, nombre, fecha_fundacion, grupo_investigacion) 
+VALUES 
+(1, 'Semillero de IA', '2019-08-01', 1),
+(2, 'Semillero de Biotecnología', '2020-09-15', 2);
+
+-- Insertar datos en la tabla semillero_linea
+INSERT INTO semillero_linea (semillero, linea_investigacion) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla grupo_linea
+INSERT INTO grupo_linea (grupo_investigacion, linea_investigacion) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla docente_departamento
+INSERT INTO docente_departamento (docente, departamento, dedicacion, modalidad, fecha_ingreso, fecha_salida) 
+VALUES 
+(1001, 1, 'Tiempo Completo', 'Presencial', '2015-01-01', NULL),
+(1002, 2, 'Medio Tiempo', 'Presencial', '2017-05-01', NULL);
+
+-- Insertar datos en la tabla participa_semillero
+INSERT INTO participa_semillero (docente, semillero, rol, fecha_inicio, fecha_fin) 
+VALUES 
+(1001, 1, 'Líder', '2019-08-01', NULL),
+(1002, 2, 'Investigador', '2020-09-15', NULL);
+
+-- Insertar datos en la tabla participa_grupo
+INSERT INTO participa_grupo (docente_cedula, grupo_investigacion_id, rol, fecha_inicio, fecha_fin) 
+VALUES 
+(1001, 1, 'Investigador', '2015-05-01', NULL),
+(1002, 2, 'Coordinador', '2017-07-15', NULL);
+
+-- Insertar datos en la tabla alianza
+INSERT INTO alianza (aliado, departamento, fecha_inicio, fecha_fin, docente) 
+VALUES 
+(123456789, 1, '2022-01-01', NULL, 1001),
+(987654321, 2, '2023-03-15', NULL, 1002);
+
+-- Insertar datos en la tabla aliado_proyecto
+INSERT INTO aliado_proyecto (aliado, proyecto) 
+VALUES 
+(123456789, 1),
+(987654321, 2);
+
+-- Insertar datos en la tabla desarrolla
+INSERT INTO desarrolla (docente, proyecto, rol, descripcion) 
+VALUES 
+(1001, 1, 'Director', 'Desarrollo de modelos de IA para la industria'),
+(1002, 2, 'Investigador Principal', 'Investigación avanzada en biotecnología');
+
+-- Insertar datos en la tabla palabras_clave
+INSERT INTO palabras_clave (proyecto, termino_clave) 
+VALUES 
+(1, 'Inteligencia Artificial'),
+(2, 'Biotecnología');
+
+-- Insertar datos en la tabla ac_proyecto
+INSERT INTO ac_proyecto (proyecto, area_conocimiento) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla proyecto_linea
+INSERT INTO proyecto_linea (proyecto, linea_investigacion) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla ods_proyecto
+INSERT INTO ods_proyecto (proyecto, ods) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla aa_proyecto
+INSERT INTO aa_proyecto (proyecto, area_aplicacion) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla ac_linea
+INSERT INTO ac_linea (linea_investigacion, area_conocimiento) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla ods_linea
+INSERT INTO ods_linea (linea_investigacion, ods) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla aa_linea
+INSERT INTO aa_linea (area_aplicacion, linea_investigacion) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla docente_producto
+INSERT INTO docente_producto (docente, producto) 
+VALUES 
+(1001, 1),
+(1002, 2);
+
+-- Insertar datos en la tabla estudio_ac
+INSERT INTO estudio_ac (estudio, area_conocimiento) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla apoyo_profesoral
+INSERT INTO apoyo_profesoral (estudios, con_apoyo, institucion, tipo) 
+VALUES 
+(1, 1, 'Colciencias', 'Beca Total'),
+(2, 1, 'Colciencias', 'Beca Parcial');
+
+-- Insertar datos en la tabla beca
+INSERT INTO beca (estudios, tipo, institucion, fecha_inicio, fecha_fin) 
+VALUES 
+(1, 'Beca Doctoral', 'Colciencias', '2010-01-01', '2013-12-31'),
+(2, 'Beca Maestría', 'Minciencias', '2005-01-01', '2007-12-31');
+
+-- Insertar datos en la tabla evaluacion_docente
+INSERT INTO evaluacion_docente (calificacion, semestre, docente) 
+VALUES 
+(4.5, '2024-1', 1001),
+(4.2, '2024-1', 1002);
+
+-- Insertar datos en la tabla reconocimiento
+INSERT INTO reconocimiento (tipo, fecha, institucion, nombre, ambito, docente) 
+VALUES 
+('Premio Nacional', '2022-01-01', 'Colciencias', 'Investigador Destacado', 'Nacional', 1001),
+('Premio Regional', '2023-01-01', 'Minciencias', 'Innovación en Biotecnología', 'Regional', 1002);
+
+-- Insertar datos en la tabla red
+INSERT INTO red (idr, nombre, url, pais) 
+VALUES 
+(1, 'Red de Innovación', 'http://redinnovacion.com', 'Colombia'),
+(2, 'Red de Biotecnología', 'http://redbiotec.com', 'Colombia');
+
+-- Insertar datos en la tabla red_docente
+INSERT INTO red_docente (red, docente, fecha_inicio, fecha_fin, act_destacadas) 
+VALUES 
+(1, 1001, '2018-01-01', NULL, 'Participación en proyectos de innovación en IA'),
+(2, 1002, '2020-01-01', NULL, 'Investigaciones en biotecnología avanzada');
+
+-- Insertar datos en la tabla experiencia
+INSERT INTO experiencia (nombre_cargo, institucion, tipo, fecha_inicio, fecha_fin, docente) 
+VALUES 
+('Ingeniero de Software', 'Empresa Innovadora', 'Tiempo Completo', '2010-01-01', '2015-12-31', 1001),
+('Investigador en Biotecnología', 'Soluciones Tecnológicas', 'Medio Tiempo', '2015-01-01', '2020-12-31', 1002);
+
+-- Insertar datos en la tabla programa_ac
+INSERT INTO programa_ac (programa, area_conocimiento) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla acreditacion
+INSERT INTO acreditacion (resolucion, tipo, calificacion, fecha_inicio, fecha_fin, programa) 
+VALUES 
+(12345, 'Alta Calidad', '5 años', '2020-01-01', '2025-01-01', 1),
+(67890, 'Alta Calidad', '4 años', '2019-01-01', '2023-01-01', 2);
+
+-- Insertar datos en la tabla registro_calificado
+INSERT INTO registro_calificado (codigo, cant_creditos, hora_acom, hora_ind, metodologia, fecha_inicio, fecha_fin, duracion_anios, duracion_semestres, tipo_titulacion, programa) 
+VALUES 
+(1111, '150', '3000', '1000', 'Presencial', '2020-01-01', '2025-01-01', '5', '10', 'Profesional', 1),
+(2222, '180', '3500', '1500', 'Virtual', '2019-01-01', '2023-01-01', '4', '8', 'Tecnológico', 2);
+
+-- Insertar datos en la tabla activ_academica
+INSERT INTO activ_academica (id, nombre, num_creditos, tipo, area_formacion, h_acom, h_indep, idioma, espejo, entidad_espejo, pais_espejo, disenio) 
+VALUES 
+(1, 'Inteligencia Artificial Avanzada', 4, 'Teórico-Práctico', 'Ingeniería', 64, 128, 'Español', 1, 'Universidad Nacional de México', 'México', 1),
+(2, 'Biotecnología Aplicada', 3, 'Teórico', 'Ciencias', 48, 96, 'Español', 0, '', '', 2);
+
+-- Insertar datos en la tabla enfoque
+INSERT INTO enfoque (id, nombre, descripcion) 
+VALUES 
+(1, 'Enfoque Técnico', 'Centrado en aspectos técnicos de la disciplina'),
+(2, 'Enfoque Investigativo', 'Orientado a la investigación y desarrollo científico');
+
+-- Insertar datos en la tabla enfoque_rc
+INSERT INTO enfoque_rc (enfoque, registro_calificado) 
+VALUES 
+(1, 1111),
+(2, 2222);
+
+-- Insertar datos en la tabla aspecto_normativo
+INSERT INTO aspecto_normativo (id, tipo, descripcion, fuente) 
+VALUES 
+(1, 'Ley', 'Normativa sobre IA', 'Ministerio de Ciencia'),
+(2, 'Regulación', 'Regulación en biotecnología', 'Ministerio de Salud');
+
+-- Insertar datos en la tabla an_programa
+INSERT INTO an_programa (aspecto_normativo, programa) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla practica_estrategia
+INSERT INTO practica_estrategia (id, tipo, nombre, descripcion) 
+VALUES 
+(1, 'Proyecto de Aula', 'Desarrollo de Aplicaciones', 'Desarrollo de aplicaciones con IA'),
+(2, 'Investigación', 'Biotecnología', 'Investigación aplicada en biotecnología');
+
+-- Insertar datos en la tabla programa_pe
+INSERT INTO programa_pe (programa, practica_estrategia) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla aa_rc
+INSERT INTO aa_rc (activ_academicas_idcurso, registro_calificado_codigo, componente, semestre) 
+VALUES 
+(1, 1111, 'Componente técnico', '2024-1'),
+(2, 2222, 'Componente investigativo', '2024-1');
+
+-- Insertar datos en la tabla pasantia
+INSERT INTO pasantia (id, nombre, pais, empresa, descripcion, programa) 
+VALUES 
+(1, 'Pasantía en IA', 'Colombia', 'Empresa Innovadora', 'Desarrollo de soluciones IA', 1),
+(2, 'Pasantía en Biotecnología', 'Colombia', 'Soluciones Tecnológicas', 'Investigación en biotecnología', 2);
+
+-- Insertar datos en la tabla premio
+INSERT INTO premio (id, nombre, descripcion, fecha, entidad_otorgante, pais, programa) 
+VALUES 
+(1, 'Premio Nacional de Innovación', 'Reconocimiento por innovaciones tecnológicas', '2023-01-01', 'Colciencias', 'Colombia', 1),
+(2, 'Premio en Biotecnología', 'Reconocimiento por investigación en biotecnología', '2024-01-01', 'Minciencias', 'Colombia', 2);
+
+-- Insertar datos en la tabla car_innovacion
+INSERT INTO car_innovacion (id, nombre, descripcion, tipo) 
+VALUES 
+(1, 'Innovación en IA', 'Nuevas técnicas de inteligencia artificial aplicada', 'Tecnológica'),
+(2, 'Biotecnología Avanzada', 'Nuevas investigaciones en biotecnología vegetal', 'Científica');
+
+-- Insertar datos en la tabla programa_ci
+INSERT INTO programa_ci (programa, car_innovacion) 
+VALUES 
+(1, 1),
+(2, 2);
+
+-- Insertar datos en la tabla intereses_futuros
+INSERT INTO intereses_futuros (docente, termino_clave) 
+VALUES 
+(1001, 'Inteligencia Artificial'),
+(1002, 'Biotecnología');

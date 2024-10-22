@@ -1,0 +1,19 @@
+{
+  "Version": 1,
+  "Hash": "bK+o0F/uOJ+NtlOIM6RN54guSyUp/5s/ZV2YfA+Qmic=",
+  "Source": "ProyectoBackendCsharp",
+  "BasePath": "_content/ProyectoBackendCsharp",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "ProyectoBackendCsharp\\wwwroot",
+      "Source": "ProyectoBackendCsharp",
+      "ContentRoot": "C:\\Users\\sebas\\Downloads\\ProyectoBackendCsharp\\wwwroot\\",
+      "BasePath": "_content/ProyectoBackendCsharp",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": []
+}

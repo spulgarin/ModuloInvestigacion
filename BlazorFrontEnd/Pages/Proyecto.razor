@@ -1,0 +1,459 @@
+@page "/proyecto"
+
+@using BlazorFrontEnd.Services
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestionar <b>Proyectos</b></h2>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#addProyectoModal" class="btn btn-success" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit()">
+                            <i class="material-icons">&#xE147;</i> <span>Añadir Nuevo Proyecto</span>
+                        </a>
+
+                        <a href="#consultarProyectoModal" class="btn btn-success" data-bs-toggle="modal" @onclick="PrepareForConsulta">
+                            <i class="material-icons">&#xE8B6;</i> <span>Consultar Proyectos</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (proyecto == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!proyecto.Any())
+            {
+                <p>No hay proyectos registrados.</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Titulo</th>
+                            <th>Resumen</th>
+                            <th>Presupuesto</th>
+                            <th>Tipo de financiación</th>
+                            <th>Tipo de fondos</th>
+                            <th>Fecha de inicio</th>
+                            <th>Fecha fin</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var proyecto in proyecto)
+                        {
+                            <tr>
+                                <td>@proyecto["id"]</td>
+                                <td>@proyecto["titulo"]</td>
+                                <td>@proyecto["resumen"]</td>
+                                <td>@proyecto["presupuesto"]</td>
+                                <td>@proyecto["tipo_financiacion"]</td>
+                                <td>@proyecto["tipo_fondos"]</td>
+                                <td>@proyecto["fecha_inicio"]</td>
+                                <td>@proyecto["fecha_fin"]</td>
+                                <td>
+                                    <a href="#editProyectoModal" class="edit" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit(proyecto)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
+                                    </a>
+
+                                    <a href="#deleteProyectoModal" class="delete" data-bs-toggle="modal" @onclick="() => SetProyectoToDelete(proyecto)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir/Editar Proyecto -->
+<div class="modal fade" id="addProyectoModal" tabindex="-1" role="dialog" aria-labelledby="addProyectoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="@currentProyecto" OnValidSubmit="SaveProyecto">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProyectoModalLabel">@(isNewProyecto ? "Añadir" : "Editar") Proyecto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <InputText class="form-control" @bind-Value="id"/>
+                        <ValidationMessage For="@(() => id)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Titulo</label>
+                        <InputText class="form-control" @bind-Value="titulo" />
+                        <ValidationMessage For="@(() => titulo)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Resumen</label>
+                        <InputText class="form-control" @bind-Value="resumen" />
+                        <ValidationMessage For="@(() => resumen)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Presupuesto</label>
+                        <InputText class="form-control" @bind-Value="presupuesto" />
+                        <ValidationMessage For="@(() => presupuesto)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de financiación</label>
+                        <InputText class="form-control" @bind-Value="tipo_financiacion" />
+                        <ValidationMessage For="@(() => tipo_financiacion)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de fondos</label>
+                        <InputText class="form-control" @bind-Value="tipo_fondos" />
+                        <ValidationMessage For="@(() => tipo_fondos)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de inicio</label>
+                        <InputText class="form-control" @bind-Value="fecha_inicio" />
+                        <ValidationMessage For="@(() => fecha_inicio)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha fin</label>
+                        <InputText class="form-control" @bind-Value="fecha_fin" />
+                        <ValidationMessage For="@(() => fecha_fin)" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@(isNewProyecto ? "Añadir" : "Guardar")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar Proyecto -->
+<div class="modal fade" id="deleteProyectoModal" tabindex="-1" role="dialog" aria-labelledby="deleteProyectoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProyectoModalLabel">Eliminar Proyecto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar esta Proyecto?</p>
+                <p class="text-warning"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteProyecto">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Consultar Proyecto -->
+<div class="modal fade" id="consultarProyectoModal" tabindex="-1" role="dialog" aria-labelledby="consultarProyectoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultarProyectoModalLabel">Consultar Proyecto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Código</label>
+                    <input type="text" class="form-control" @bind="consultaid" @bind:event="oninput"/>
+                </div>
+                <div class="form-group">
+                    <label>Titulo</label>
+                    <input type="text" class="form-control" @bind="consultaTitulo" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Resumen</label>
+                    <input type="text" class="form-control" @bind="consultaResumen" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Presupuesto</label>
+                    <input type="text" class="form-control" @bind="consultaPresupuesto" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Tipo de financiación</label>
+                    <input type="text" class="form-control" @bind="consultaTipo_financiacion" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Tipo de fondos</label>
+                    <input type="text" class="form-control" @bind="consultaTipo_fondos" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Fecha de inicio</label>
+                    <input type="text" class="form-control" @bind="consultaFecha_inicio" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Fecha fin</label>
+                    <input type="text" class="form-control" @bind="consultaFecha_fin" readonly />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConsultarProyecto">Consultar</button>
+                <button type="button" class="btn btn-warning" @onclick="ModificarProyectoConsultada" disabled="@(!proyectoEncontrada)">Modificar</button>
+                <button type="button" class="btn btn-danger" @onclick="EliminarProyectoConsultada" disabled="@(!proyectoEncontrada)">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Dictionary<string, object>> proyecto = new List<Dictionary<string, object>>();
+    
+    private Dictionary<string, object> currentProyecto = new Dictionary<string, object>();
+
+    private bool isNewProyecto = true;
+
+    private bool proyectoEncontrada = false;
+
+    private string id = "";
+
+    private string titulo = "";
+
+    private string resumen = "";
+
+    private string presupuesto = "";
+
+    private string tipo_financiacion = "";
+
+    private string tipo_fondos = "";
+
+    private string fecha_inicio = "";
+
+    private string fecha_fin = "";
+    private string consultaid = "";
+
+    private string consultaTitulo = "";
+
+    private string consultaResumen = "";
+
+    private string consultaTipo_financiacion = "";
+
+    private string consultaTipo_fondos = "";
+
+    private string consultaPresupuesto = "";
+
+    private string consultaFecha_inicio = "";
+
+    private string consultaFecha_fin = "";
+
+    private string path = "api/proyecto/proyecto";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProyecto();
+    }
+
+    private async Task LoadProyecto()
+    {
+        try
+        {
+            proyecto = await ApiService.GetDataAsync(path);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar proyecto: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar proyecto. Por favor, intente nuevamente.");
+        }
+    }
+
+    private void PrepareForAddOrEdit(Dictionary<string, object>? proyecto = null)
+    {
+
+        isNewProyecto = proyecto == null;
+        currentProyecto = proyecto ?? new Dictionary<string, object>();
+
+        id = currentProyecto.TryGetValue("id", out var c) ? c?.ToString() ?? "" : "";
+        titulo = currentProyecto.TryGetValue("titulo", out var n) ? n?.ToString() ?? "" : "";
+        resumen = currentProyecto.TryGetValue("resumen", out var e) ? e?.ToString() ?? "" : "";
+        presupuesto = currentProyecto.TryGetValue("presupuesto", out var z) ? z?.ToString() ?? "" : "";
+        tipo_financiacion = currentProyecto.TryGetValue("tipo_financiacion", out var f) ? f?.ToString() ?? "" : "";
+        tipo_fondos = currentProyecto.TryGetValue("tipo_fondos", out var g) ? g?.ToString() ?? "" : "";
+        fecha_inicio = currentProyecto.TryGetValue("fecha_inicio", out var j) ? j?.ToString() ?? "" : "";
+        fecha_fin = currentProyecto.TryGetValue("fecha_fin", out var h) ? h?.ToString() ?? "" : "";
+
+        JSRuntime.InvokeVoidAsync("showModal", "addProyectoModal");
+    }
+
+    private void PrepareForConsulta()
+    {
+        consultaid = "";
+        consultaTitulo= "";
+        consultaResumen= "";
+        consultaPresupuesto = "";
+        consultaTipo_financiacion = "";
+        consultaTipo_fondos = "";
+        consultaFecha_inicio = "";
+        consultaFecha_fin = "";
+        proyectoEncontrada = false;
+    }
+
+    private void SetProyectoToDelete(Dictionary<string, object> proyecto)
+    {
+        currentProyecto = proyecto;
+        JSRuntime.InvokeVoidAsync("showModal", "deleteProyectoModal");
+    }
+
+    private async Task SaveProyecto()
+    {
+        try
+        {
+            currentProyecto["id"] = id;
+            currentProyecto["titulo"] = titulo;
+            currentProyecto["resumen"] = resumen;
+            currentProyecto["presupuesto"] = presupuesto;
+            currentProyecto["tipo_financiacion"] = tipo_financiacion;
+            currentProyecto["tipo_fondos"] = tipo_fondos;
+            currentProyecto["fecha_inicio"] = fecha_inicio;
+            currentProyecto["fecha_fin"] = fecha_fin;
+            bool success;
+            if (isNewProyecto)
+            {
+                success = await ApiService.AddEntityAsync(path, currentProyecto);
+
+            }
+            else
+            {
+                success = await ApiService.EditEntityAsync(path + "/id", id, currentProyecto);
+            }
+
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("hideModal", "addProyectoModal");
+                await LoadProyecto();
+
+                id = titulo = resumen = fecha_inicio = fecha_fin = presupuesto = tipo_financiacion = tipo_fondos = string.Empty;
+                currentProyecto = new Dictionary<string, object>();
+                isNewProyecto = true;
+
+                StateHasChanged();
+
+                await JSRuntime.InvokeVoidAsync("alert", "Operación realizada con éxito.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la proyecto. Por favor, intente nuevamente.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar proyecto: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la proyecto. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task DeleteProyecto()
+    {
+        try
+        {
+            if (currentProyecto.TryGetValue("id", out var idObj) && idObj is string idStr)
+            {
+                bool success = await ApiService.DeleteEntityAsync(path + "/id", idStr);
+
+                if (success)
+                {
+                    await JSRuntime.InvokeVoidAsync("hideModal", "deleteProyectoModal");
+                    await LoadProyecto();
+                    await JSRuntime.InvokeVoidAsync("alert", "proyecto eliminada con éxito.");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la proyecto. Por favor, intente nuevamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar proyecto: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la proyecto. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ConsultarProyecto()
+    {
+        try
+        {
+            var resultado = await ApiService.GetDataAsync(path+$"/id/{consultaid}");
+            if (resultado.Any())
+            {
+                var proyectoConsultada = resultado.First();
+                consultaTitulo = proyectoConsultada["titulo"]?.ToString() ?? "";
+                consultaResumen = proyectoConsultada["resumen"]?.ToString() ?? "";
+                consultaPresupuesto = proyectoConsultada["presupuesto"]?.ToString() ?? "";
+                consultaTipo_financiacion = proyectoConsultada["tipo_financiacion"]?.ToString() ?? "";
+                consultaTipo_fondos = proyectoConsultada["tipo_fondos"]?.ToString() ?? "";
+                consultaFecha_inicio = proyectoConsultada["fecha_inicio"]?.ToString() ?? "";
+                consultaFecha_fin = proyectoConsultada["fecha_fin"]?.ToString() ?? "";
+                proyectoEncontrada = true;
+            }
+            else
+            {
+                consultaid = "";
+                consultaTitulo= "";
+                consultaResumen= "";
+                consultaPresupuesto = "";
+                consultaTipo_financiacion = "";
+                consultaTipo_fondos = "";
+                consultaFecha_inicio = "";
+                consultaFecha_fin = "";
+                proyectoEncontrada = false;
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró ninguna proyecto con ese código.");
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al consultar proyecto: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al consultar la proyecto. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ModificarProyectoConsultada()
+    {
+
+        PrepareForAddOrEdit(new Dictionary<string, object>
+        {
+            ["id"] = consultaid,
+            ["titulo"] = consultaTitulo,
+            ["resumen"] = consultaResumen,
+            ["presupuesto"] = consultaPresupuesto,
+            ["tipo_financiacion"] = consultaTipo_financiacion,
+            ["tipo_fondos"] = consultaTipo_fondos,
+            ["fecha_inicio"] = consultaFecha_inicio,
+            ["fecha_fin"] = consultaFecha_fin
+        });
+
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarProyectoModal");
+
+    }
+
+    private async Task EliminarProyectoConsultada()
+    {
+        SetProyectoToDelete(new Dictionary<string, object>
+        {
+            ["id"] = consultaid,
+            ["titulo"] = consultaTitulo,
+            ["resumen"] = consultaResumen,
+            ["presupuesto"] = consultaPresupuesto,
+            ["tipo_financiacion"] = consultaTipo_financiacion,
+            ["tipo_fondos"] = consultaTipo_fondos,
+            ["fecha_inicio"] = consultaFecha_inicio,
+            ["fecha_fin"] = consultaFecha_fin
+        });
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarProyectoModal");
+    }
+}
