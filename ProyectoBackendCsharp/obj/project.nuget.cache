@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "PvRzEn9GgrE=",
+  "dgSpecHash": "GMX/igYkV4k=",
   "success": true,
-  "projectFilePath": "C:\\Users\\sebas\\Downloads\\ProyectoBackendCsharp\\ProyectoBackendCsharp.csproj",
+  "projectFilePath": "C:\\Users\\sebas\\OneDrive\\Escritorio\\Septimo Semestre\\Aplicacion y servicios web\\proyectosVSCODE\\ProyectoBackendCsharp\\ProyectoBackendCsharp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sebas\\.nuget\\packages\\awssdk.core\\3.7.100.14\\awssdk.core.3.7.100.14.nupkg.sha512",
     "C:\\Users\\sebas\\.nuget\\packages\\awssdk.securitytoken\\3.7.100.14\\awssdk.securitytoken.3.7.100.14.nupkg.sha512",

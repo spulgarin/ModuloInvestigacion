@@ -1,0 +1,382 @@
+@page "/participaGrupo"
+
+@using BlazorFrontEnd.Services
+
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+@inherits ValidacionAcceso
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestionar <b>Participación en Grupo</b></h2>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#addParticipacionModal" class="btn btn-success" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit()">
+                            <i class="material-icons">&#xE147;</i> <span>Añadir Nueva Participación</span>
+                        </a>
+                        <a href="#consultarParticipacionModal" class="btn btn-success" data-bs-toggle="modal" @onclick="PrepareForConsulta">
+                            <i class="material-icons">&#xE8B6;</i> <span>Consultar Participación</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (participaciones == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!participaciones.Any())
+            {
+                <p>No hay participaciones registradas.</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cédula Docente</th>
+                            <th>Grupo de Investigación ID</th>
+                            <th>Rol</th>
+                            <th>Fecha de Inicio</th>
+                            <th>Fecha de Fin</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var participacion in participaciones)
+                        {
+                            <tr>
+                                <td>@participacion["docente_cedula"]</td>
+                                <td>@participacion["grupo_investigacion_id"]</td>
+                                <td>@participacion["rol"]</td>
+                                <td>@participacion["fecha_inicio"]</td>
+                                <td>@participacion["fecha_fin"]</td>
+                                <td>
+                                    <a href="#editParticipacionModal" class="edit" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit(participacion)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
+                                    </a>
+                                    <a href="#deleteParticipacionModal" class="delete" data-bs-toggle="modal" @onclick="() => SetParticipacionToDelete(participacion)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir/Editar Participación -->
+<div class="modal fade" id="addParticipacionModal" tabindex="-1" role="dialog" aria-labelledby="addParticipacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="@currentParticipacion" OnValidSubmit="SaveParticipacion">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addParticipacionModalLabel">@(isNewParticipacion ? "Añadir" : "Editar") Participación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Cédula Docente</label>
+                        <InputText class="form-control" @bind-Value="docenteCedula" />
+                        <ValidationMessage For="@(() => docenteCedula)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Grupo de Investigación ID</label>
+                        <InputText class="form-control" @bind-Value="grupoInvestigacionId" />
+                        <ValidationMessage For="@(() => grupoInvestigacionId)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <InputText class="form-control" @bind-Value="rol" />
+                        <ValidationMessage For="@(() => rol)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Inicio</label>
+                        <InputDate class="form-control" @bind-Value="fechaInicio" />
+                        <ValidationMessage For="@(() => fechaInicio)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Fin</label>
+                        <InputDate class="form-control" @bind-Value="fechaFin" />
+                        <ValidationMessage For="@(() => fechaFin)" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@(isNewParticipacion ? "Añadir" : "Guardar")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar Participación -->
+<div class="modal fade" id="deleteParticipacionModal" tabindex="-1" role="dialog" aria-labelledby="deleteParticipacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteParticipacionModalLabel">Eliminar Participación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar esta participación?</p>
+                <p class="text-warning"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteParticipacion">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Consultar Participación -->
+<div class="modal fade" id="consultarParticipacionModal" tabindex="-1" role="dialog" aria-labelledby="consultarParticipacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultarParticipacionModalLabel">Consultar Participación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Cédula Docente</label>
+                    <input type="text" class="form-control" @bind="consultaDocenteCedula" @bind:event="oninput" />
+                </div>
+                <div class="form-group">
+                    <label>Grupo de Investigación ID</label>
+                    <input type="text" class="form-control" @bind="consultaGrupoInvestigacionId" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <input type="text" class="form-control" @bind="consultaRol" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Inicio</label>
+                    <input type="text" class="form-control" @bind="consultaFechaInicio" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Fin</label>
+                    <input type="text" class="form-control" @bind="consultaFechaFin" readonly />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConsultarParticipacion">Consultar</button>
+                <button type="button" class="btn btn-warning" @onclick="ModificarParticipacionConsultada" disabled="@(!participacionEncontrada)">Modificar</button>
+                <button type="button" class="btn btn-danger" @onclick="EliminarParticipacionConsultada" disabled="@(!participacionEncontrada)">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<Dictionary<string, object>> participaciones = new List<Dictionary<string, object>>();
+    
+    private Dictionary<string, object> currentParticipacion = new Dictionary<string, object>();
+
+    private bool isNewParticipacion = true;
+
+    private bool participacionEncontrada = false;
+
+    private string docenteCedula = "";
+    private string grupoInvestigacionId = "";
+    private string rol = "";
+    private DateTime? fechaInicio = null;
+    private DateTime? fechaFin = null;
+
+    private string consultaDocenteCedula = "";
+    private string consultaGrupoInvestigacionId = "";
+    private string consultaRol = "";
+    private DateTime? consultaFechaInicio = null;
+    private DateTime? consultaFechaFin = null;
+
+    private string path = "api/proyecto/participa_grupo";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadParticipaciones();
+    }
+
+    private async Task LoadParticipaciones()
+    {
+        try
+        {
+            participaciones = await ApiService.GetDataAsync(path);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar las participaciones: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar las participaciones. Por favor, intente nuevamente.");
+        }
+    }
+
+    private void PrepareForAddOrEdit(Dictionary<string, object>? participacion = null)
+    {
+        isNewParticipacion = participacion == null;
+        currentParticipacion = participacion ?? new Dictionary<string, object>();
+
+        docenteCedula = currentParticipacion.TryGetValue("docente_cedula", out var c) ? c?.ToString() ?? "" : "";
+        grupoInvestigacionId = currentParticipacion.TryGetValue("grupo_investigacion_id", out var g) ? g?.ToString() ?? "" : "";
+        rol = currentParticipacion.TryGetValue("rol", out var r) ? r?.ToString() ?? "" : "";
+        fechaInicio = currentParticipacion.TryGetValue("fecha_inicio", out var fi) ? DateTime.Parse(fi?.ToString() ?? "") : (DateTime?)null;
+        fechaFin = currentParticipacion.TryGetValue("fecha_fin", out var ff) ? DateTime.Parse(ff?.ToString() ?? "") : (DateTime?)null;
+
+        JSRuntime.InvokeVoidAsync("showModal", "addParticipacionModal");
+    }
+
+    private void PrepareForConsulta()
+    {
+        consultaDocenteCedula = "";
+        consultaGrupoInvestigacionId = "";
+        consultaRol = "";
+        consultaFechaInicio = null;
+        consultaFechaFin = null;
+        participacionEncontrada = false;
+    }
+
+    private void SetParticipacionToDelete(Dictionary<string, object> participacion)
+    {
+        currentParticipacion = participacion;
+        JSRuntime.InvokeVoidAsync("showModal", "deleteParticipacionModal");
+    }
+
+    private async Task SaveParticipacion()
+    {
+        try
+        {
+            currentParticipacion["docente_cedula"] = docenteCedula;
+            currentParticipacion["grupo_investigacion_id"] = grupoInvestigacionId;
+            currentParticipacion["rol"] = rol;
+            currentParticipacion["fecha_inicio"] = fechaInicio?.ToString("yyyy-MM-dd") ?? "";
+            currentParticipacion["fecha_fin"] = fechaFin?.ToString("yyyy-MM-dd") ?? "";
+
+            bool success;
+            if (isNewParticipacion)
+            {
+                success = await ApiService.AddEntityAsync(path, currentParticipacion);
+            }
+            else
+            {
+                success = await ApiService.EditEntityAsync(path + "/docente_cedula", docenteCedula, currentParticipacion);
+            }
+
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("hideModal", "addParticipacionModal");
+                await LoadParticipaciones();
+
+                docenteCedula = grupoInvestigacionId = rol = "";
+                fechaInicio = fechaFin = null;
+                currentParticipacion = new Dictionary<string, object>();
+                isNewParticipacion = true;
+
+                StateHasChanged();
+                await JSRuntime.InvokeVoidAsync("alert", "Operación realizada con éxito.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la participación. Por favor, intente nuevamente.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar participación: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la participación. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task DeleteParticipacion()
+    {
+        try
+        {
+            if (currentParticipacion.TryGetValue("docente_cedula", out var idObj) && idObj is string idStr)
+            {
+                bool success = await ApiService.DeleteEntityAsync(path + "/docente_cedula", idStr);
+
+                if (success)
+                {
+                    await JSRuntime.InvokeVoidAsync("hideModal", "deleteParticipacionModal");
+                    await LoadParticipaciones();
+                    await JSRuntime.InvokeVoidAsync("alert", "Participación eliminada con éxito.");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la participación. Por favor, intente nuevamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar participación: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la participación. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ConsultarParticipacion()
+    {
+        try
+        {
+            var resultado = await ApiService.GetDataAsync(path + $"/docente_cedula/{consultaDocenteCedula}");
+            if (resultado.Any())
+            {
+                var participacionConsultada = resultado.First();
+                consultaGrupoInvestigacionId = participacionConsultada["grupo_investigacion_id"]?.ToString() ?? "";
+                consultaRol = participacionConsultada["rol"]?.ToString() ?? "";
+                consultaFechaInicio = DateTime.Parse(participacionConsultada["fecha_inicio"]?.ToString() ?? "");
+                consultaFechaFin = DateTime.Parse(participacionConsultada["fecha_fin"]?.ToString() ?? "");
+                participacionEncontrada = true;
+            }
+            else
+            {
+                consultaDocenteCedula = consultaGrupoInvestigacionId = consultaRol = "";
+                consultaFechaInicio = consultaFechaFin = null;
+                participacionEncontrada = false;
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró ninguna participación con ese código.");
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al consultar participación: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al consultar la participación. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ModificarParticipacionConsultada()
+    {
+        PrepareForAddOrEdit(new Dictionary<string, object>
+        {
+            ["docente_cedula"] = consultaDocenteCedula,
+            ["grupo_investigacion_id"] = consultaGrupoInvestigacionId,
+            ["rol"] = consultaRol,
+            ["fecha_inicio"] = consultaFechaInicio?.ToString("yyyy-MM-dd") ?? "",
+            ["fecha_fin"] = consultaFechaFin?.ToString("yyyy-MM-dd") ?? ""
+        });
+
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarParticipacionModal");
+    }
+
+    private async Task EliminarParticipacionConsultada()
+    {
+        SetParticipacionToDelete(new Dictionary<string, object>
+        {
+            ["docente_cedula"] = consultaDocenteCedula,
+            ["grupo_investigacion_id"] = consultaGrupoInvestigacionId,
+            ["rol"] = consultaRol,
+            ["fecha_inicio"] = consultaFechaInicio?.ToString("yyyy-MM-dd") ?? "",
+            ["fecha_fin"] = consultaFechaFin?.ToString("yyyy-MM-dd") ?? ""
+        });
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarParticipacionModal");
+    }
+}
+

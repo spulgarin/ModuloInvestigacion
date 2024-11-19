@@ -1,0 +1,106 @@
+@page "/aa_linea"
+
+@using BlazorFrontEnd.Services
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+@inherits ValidacionAcceso
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Listar <b>aa_linea</b></h2>
+                    </div>
+                </div>
+            </div>
+            @if (aa_linea == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!aa_linea.Any())
+            {
+                <p>No hay objetivo de aa_linea</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Linea de investigacion</th>
+                            <th>Objetivo de desarrollo sostenible</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < consultaNombres1.Count; i++)
+                        {
+                            <tr>
+                                <td>@consultaNombres1[i]</td>
+                                <td>@consultaNombres2[i]</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<Dictionary<string, object>> aa_linea = new List<Dictionary<string, object>>();
+    private List<Dictionary<string, object>> linea_investigacion = new List<Dictionary<string, object>>();
+    private List<Dictionary<string, object>> area_aplicacion = new List<Dictionary<string, object>>();
+    private List<string> consultaNombres1 = new List<string>();
+    private List<string> consultaNombres2 = new List<string>();
+    private string path = "api/proyecto/aa_linea";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAa_linea();
+    }
+
+    private async Task LoadAa_linea()
+    {
+        try
+        {
+            aa_linea = await ApiService.GetDataAsync(path);
+            foreach (var item in aa_linea)
+            {
+                // Obtén los datos de línea de investigación
+                linea_investigacion = await ApiService.GetDataAsync($"api/proyecto/linea_investigacion/id/{item["linea_investigacion"]}");
+                
+                area_aplicacion = await ApiService.GetDataAsync($"api/proyecto/area_aplicacion/id/{item["area_aplicacion"]}");
+
+                // Extrae el nombre y agrégalo a la lista
+                if (linea_investigacion != null)
+                {
+                    foreach (var linea in linea_investigacion)
+                    {
+                        if (linea.TryGetValue("nombre", out var nombre))
+                        {
+                            consultaNombres1.Add(nombre.ToString()); // Agrega el nombre a la lista
+                        }
+                    }
+                }
+                if (area_aplicacion != null)
+                {
+                    foreach (var linea in area_aplicacion)
+                    {
+                        if (linea.TryGetValue("nombre", out var nombre))
+                        {
+                            consultaNombres2.Add(nombre.ToString()); // Agrega el nombre a la lista
+                        }
+                    }
+                }
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar el aa_linea: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar el aa_linea. Por favor, intente nuevamente.");
+        }
+    }
+}

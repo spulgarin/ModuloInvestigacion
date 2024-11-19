@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "bK+o0F/uOJ+NtlOIM6RN54guSyUp/5s/ZV2YfA+Qmic=",
+  "Hash": "trFEL8Q3j9Q5kq59ln1xVvFDUOLNi1QZzBdUTV3dQVs=",
   "Source": "ProyectoBackendCsharp",
   "BasePath": "_content/ProyectoBackendCsharp",
   "Mode": "Default",
@@ -10,7 +10,7 @@
     {
       "Name": "ProyectoBackendCsharp\\wwwroot",
       "Source": "ProyectoBackendCsharp",
-      "ContentRoot": "C:\\Users\\sebas\\Downloads\\ProyectoBackendCsharp\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\sebas\\OneDrive\\Escritorio\\Septimo Semestre\\Aplicacion y servicios web\\proyectosVSCODE\\ProyectoBackendCsharp\\wwwroot\\",
       "BasePath": "_content/ProyectoBackendCsharp",
       "Pattern": "**"
     }

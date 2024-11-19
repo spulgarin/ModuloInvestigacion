@@ -1,0 +1,64 @@
+@page "/semillero_linea"
+
+@using BlazorFrontEnd.Services
+
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+@inherits ValidacionAcceso
+
+<h3>Relación entre Semilleros y Líneas de Investigación</h3>
+
+@if (semillerosLineas == null)
+{
+    <p><em>Cargando datos...</em></p>
+}
+else if (!semillerosLineas.Any())
+{
+    <p>No se encontraron registros.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Semillero</th>
+                <th>Linea Investigación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var semillerosLinea in semillerosLineas)
+            {
+                <tr>
+                    <td>@semillerosLinea["semillero"]</td>
+                    <td>@semillerosLinea["linea_investigacion"]</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Dictionary<string, object>> semillerosLineas = new List<Dictionary<string, object>>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSemilleroLineas();
+    }
+
+    private string path = "api/proyecto/semillero_linea";
+
+    private async Task LoadSemilleroLineas()
+    {
+        try
+        {
+            semillerosLineas = await ApiService.GetDataAsync(path);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar la relación: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar la relación. Por favor, intente nuevamente.");
+        }
+    }
+
+}

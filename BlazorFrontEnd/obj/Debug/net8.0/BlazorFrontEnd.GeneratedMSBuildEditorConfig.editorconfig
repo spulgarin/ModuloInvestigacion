@@ -30,32 +30,76 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = TW9kZWxcUGVyc29uYS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/AreaAplicacion.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXJlYUFwbGljYWNpb24ucmF6b3I=
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Aa_linea.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWFfbGluZWEucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/AreaConocimiento.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXJlYUNvbm9jaW1pZW50by5yYXpvcg==
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Ac_linea.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNfbGluZWEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Area_aplicacion.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXJlYV9hcGxpY2FjaW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Area_conocimiento.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXJlYV9jb25vY2ltaWVudG8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Grupo_investigacion.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3J1cG9faW52ZXN0aWdhY2lvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Grupo_linea.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcR3J1cG9fbGluZWEucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSG9tZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/LineaInvestigacion.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGluZWFJbnZlc3RpZ2FjaW9uLnJhem9y
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Linea_investigacion.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGluZWFfaW52ZXN0aWdhY2lvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/ListTable.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGlzdFRhYmxlLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/ObjetivoDesarrolloSostenible.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT2JqZXRpdm9EZXNhcnJvbGxvU29zdGVuaWJsZS5yYXpvcg==
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Login.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9naW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Logout.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTG9nb3V0LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Objetivo_desarrollo_sostenible.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT2JqZXRpdm9fZGVzYXJyb2xsb19zb3N0ZW5pYmxlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Ods_linea.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcT2RzX2xpbmVhLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Participa_grupo.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGFydGljaXBhX2dydXBvLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Participa_semillero.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGFydGljaXBhX3NlbWlsbGVyby5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Proyecto.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJveWVjdG8ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Semillero.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2VtaWxsZXJvLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Semillero_linea.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2VtaWxsZXJvX2xpbmVhLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/sebas/OneDrive/Escritorio/Septimo Semestre/Aplicacion y servicios web/proyectosVSCODE/BlazorFrontEnd/Pages/Universidad.razor]

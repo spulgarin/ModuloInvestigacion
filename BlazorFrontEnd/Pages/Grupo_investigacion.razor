@@ -1,0 +1,463 @@
+@page "/grupo_investigacion"
+
+@using BlazorFrontEnd.Services
+
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+@inherits ValidacionAcceso
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestionar <b>Grupo de Investigación</b></h2>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#addGrupoModal" class="btn btn-success" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit()">
+                            <i class="material-icons">&#xE147;</i> <span>Añadir Nuevo Grupo</span>
+                        </a>
+
+                        <a href="#consultarGrupoModal" class="btn btn-success" data-bs-toggle="modal" @onclick="PrepareForConsulta">
+                            <i class="material-icons">&#xE8B6;</i> <span>Consultar Grupo</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (gruposInvestigacion == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!gruposInvestigacion.Any())
+            {
+                <p>No hay grupos registrados.</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>url_gruplac</th>
+                            <th>Categoria</th>
+                            <th>Convocatoria</th>
+                            <th>Fecha Fundación</th>
+                            <th>Universidad</th>
+                            <th>Interno</th>
+                            <th>Ambito</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var gruposInvestigacion in gruposInvestigacion)
+                        {
+                            <tr>
+                                <td>@gruposInvestigacion["id"]</td>
+                                <td>@gruposInvestigacion["nombre"]</td>
+                                <td>@gruposInvestigacion["url_gruplac"]</td>
+                                <td>@gruposInvestigacion["categoria"]</td>
+                                <td>@gruposInvestigacion["convocatoria"]</td>
+                                <td>@gruposInvestigacion["fecha_fundacion"]</td>
+                                <td>@gruposInvestigacion["universidad"]</td>
+                                <td>@gruposInvestigacion["interno"]</td>
+                                <td>@gruposInvestigacion["ambito"]</td>
+                                <td>
+                                    <a href="#editGrupoModal" class="edit" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit(gruposInvestigacion)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
+                                    </a>
+
+                                    <a href="#deleteGrupoModal" class="delete" data-bs-toggle="modal" @onclick="() => SetGrupoToDelete(gruposInvestigacion)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir/Editar el Grupo de Investigación -->
+<div class="modal fade" id="addGrupoModal" tabindex="-1" role="dialog" aria-labelledby="addGrupoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="@currentGrupo" OnValidSubmit="SaveGrupo">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addGrupoModalLabel">@(isNewGrupo ? "Añadir" : "Editar") Grupo de Investigación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <InputText class="form-control" @bind-Value="id"/>
+                        <ValidationMessage For="@(() => id)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <InputText class="form-control" @bind-Value="nombre" />
+                        <ValidationMessage For="@(() => nombre)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Url grupo</label>
+                        <InputText class="form-control" @bind-Value="urlGruplac" />
+                        <ValidationMessage For="@(() => urlGruplac)" />
+                    </div>
+                    <!-- Aquí añadí el nuevo campo para la línea de investigación -->
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <InputText class="form-control" @bind-Value="categoria" />
+                        <ValidationMessage For="@(() => categoria)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Convocatoria</label>
+                        <InputText class="form-control" @bind-Value="convocatoria" />
+                        <ValidationMessage For="@(() => convocatoria)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha fundacion</label>
+                        <InputText class="form-control" @bind-Value="fechaFundacion" />
+                        <ValidationMessage For="@(() => fechaFundacion)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Universdiad</label>
+                        <InputText class="form-control" @bind-Value="universidad" />
+                        <ValidationMessage For="@(() => universidad)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Interno</label>
+                        <InputText class="form-control" @bind-Value="interno" />
+                        <ValidationMessage For="@(() => interno)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Ambito</label>
+                        <InputText class="form-control" @bind-Value="ambito" />
+                        <ValidationMessage For="@(() => ambito)" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@(isNewGrupo ? "Añadir" : "Guardar")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal para Eliminar el Grupo de Investigación -->
+<div class="modal fade" id="deleteGrupoModal" tabindex="-1" role="dialog" aria-labelledby="deleteGrupoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteGrupoModalLabel">Eliminar Grupo de Investigación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar este Grupo de Investigación?</p>
+                <p class="text-warning"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteGrupo">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Consultar el Grupo de Investigación -->
+<div class="modal fade" id="consultarGrupoModal" tabindex="-1" role="dialog" aria-labelledby="consultarGrupoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultarGrupoModalLabel">Consultar Grupo de Investigación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Código</label>
+                    <input type="text" class="form-control" @bind="consultaId" @bind:event="oninput"/>
+                </div>
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" class="form-control" @bind="consultaNombre" readonly />
+                </div>
+                <div class="form-group">
+                    <label>urlGruplac</label>
+                    <input type="text" class="form-control" @bind="consultaUrlGruplac" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <input type="text" class="form-control" @bind="consultaCategoria" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Convocatoria</label>
+                    <input type="text" class="form-control" @bind="consultaConvocatoria" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Fecha fundacion</label>
+                    <input type="text" class="form-control" @bind="consultaFechaFundacion" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Universdiad</label>
+                    <input type="text" class="form-control" @bind="consultaUniversidad" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Interno</label>
+                    <input type="text" class="form-control" @bind="consultaInterno" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Ambito</label>
+                    <input type="text" class="form-control" @bind="consultaAmbito" readonly/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConsultarGrupo">Consultar</button>
+                <button type="button" class="btn btn-warning" @onclick="ModificarGrupoConsultado" disabled="@(!grupoEncontrado)">Modificar</button>
+                <button type="button" class="btn btn-danger" @onclick="EliminarGrupoConsultado" disabled="@(!grupoEncontrado)">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<Dictionary<string, object>> gruposInvestigacion = new List<Dictionary<string, object>>();
+    
+    private Dictionary<string, object> currentGrupo = new Dictionary<string, object>();
+
+    private bool isNewGrupo = true;
+
+    private bool grupoEncontrado = false;
+
+    private string id = "";
+    private string nombre = "";
+    private string urlGruplac = "";
+    private string categoria = "";
+    private string convocatoria = "";
+    private string fechaFundacion = "";
+    private string universidad = "";
+    private string interno = "";
+    private string ambito = "";
+    private string consultaId = "";
+    private string consultaNombre = "";
+    private string consultaUrlGruplac = "";
+    private string consultaCategoria = "";
+    private string consultaConvocatoria = "";
+    private string consultaFechaFundacion = "";
+    private string consultaUniversidad = "";
+    private string consultaInterno = "";
+    private string consultaAmbito = "";
+    private string path = "api/proyecto/grupo_investigacion";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGrupos();
+    }
+
+    private async Task LoadGrupos()
+    {
+        try
+        {
+            gruposInvestigacion = await ApiService.GetDataAsync(path);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar los grupos de investigación: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar los grupos de investigación. Por favor, intente nuevamente.");
+        }
+    }
+
+    private void PrepareForAddOrEdit(Dictionary<string, object>? grupo = null)
+    {
+        isNewGrupo = grupo == null;
+        currentGrupo = grupo ?? new Dictionary<string, object>();
+
+        id = currentGrupo.TryGetValue("id", out var c) ? c?.ToString() ?? "" : "";
+        nombre = currentGrupo.TryGetValue("nombre", out var n) ? n?.ToString() ?? "" : "";
+        urlGruplac = currentGrupo.TryGetValue("url_gruplac", out var u) ? u?.ToString() ?? "" : "";
+        categoria = currentGrupo.TryGetValue("categoria", out var ca) ? ca?.ToString() ?? "" : "";
+        convocatoria = currentGrupo.TryGetValue("convocatoria", out var co) ? co?.ToString() ?? "" : "";
+        fechaFundacion = currentGrupo.TryGetValue("fecha_fundacion", out var f) ? f?.ToString() ?? "" : "";
+        universidad = currentGrupo.TryGetValue("universidad", out var uni) ? uni?.ToString() ?? "" : "";
+        interno = currentGrupo.TryGetValue("interno", out var b) ? b?.ToString() ?? "" : "";
+        ambito = currentGrupo.TryGetValue("ambito", out var a) ? a?.ToString() ?? "" : "";
+
+        JSRuntime.InvokeVoidAsync("showModal", "addGrupoModal");
+    }
+
+    private void PrepareForConsulta()
+    {
+        consultaId = "";
+        consultaNombre= "";
+        consultaUrlGruplac= "";
+        consultaCategoria= "";
+        consultaConvocatoria = "";
+        consultaFechaFundacion = "";
+        consultaUniversidad = "";
+        consultaInterno = "";
+        consultaAmbito = "";
+    }
+
+    private void SetGrupoToDelete(Dictionary<string, object> gruposInvestigacion)
+    {
+        currentGrupo = gruposInvestigacion;
+        JSRuntime.InvokeVoidAsync("showModal", "deleteGrupoModal");
+    }
+
+    private async Task SaveGrupo()
+    {
+        try
+        {
+            currentGrupo["id"] = id;
+            currentGrupo["nombre"] = nombre;
+            currentGrupo["url_gruplac"] = urlGruplac;
+            currentGrupo["categoria"] = categoria;
+            currentGrupo["convocatoria"] = convocatoria;
+            currentGrupo["fecha_fundacion"] = fechaFundacion;
+            currentGrupo["universidad"] = universidad;
+            currentGrupo["interno"] = interno;
+            currentGrupo["ambito"] = ambito;            
+
+            bool success;
+            if (isNewGrupo)
+            {
+                success = await ApiService.AddEntityAsync(path, currentGrupo);
+            }
+            else
+            {
+                success = await ApiService.EditEntityAsync(path + "/id", id, currentGrupo);
+            }
+
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("hideModal", "addGrupoModal");
+                await LoadGrupos();
+
+                id = nombre = fechaFundacion = interno = urlGruplac = categoria = convocatoria = universidad = ambito = string.Empty;
+                currentGrupo = new Dictionary<string, object>();
+                isNewGrupo = true;
+
+                StateHasChanged();
+                await JSRuntime.InvokeVoidAsync("alert", "Operación realizada con éxito.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error al guardar el grupo de investigación. Por favor, intente nuevamente.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar el grupo: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar el grupo de investigación. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task DeleteGrupo()
+    {
+        try
+        {
+            if (currentGrupo.TryGetValue("id", out var idObj) && idObj is string idStr)
+            {
+                bool success = await ApiService.DeleteEntityAsync(path + "/id", idStr);
+
+                if (success)
+                {
+                    await JSRuntime.InvokeVoidAsync("hideModal", "deleteGrupoModal");
+                    await LoadGrupos();
+                    await JSRuntime.InvokeVoidAsync("alert", "Grupo de investigación eliminado con éxito.");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar el grupo de investigación. Por favor, intente nuevamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar el grupo: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar el grupo de investigación. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ConsultarGrupo()
+    {
+        try
+        {
+            var resultado = await ApiService.GetDataAsync(path + $"/id/{consultaId}");
+            if (resultado.Any())
+            {
+                var grupoConsultado = resultado.First();
+                consultaNombre = grupoConsultado["nombre"]?.ToString() ?? "";
+                consultaUrlGruplac = grupoConsultado["url_gruplac"]?.ToString() ?? "";
+                consultaCategoria = grupoConsultado["categoria"]?.ToString() ?? "";
+                consultaConvocatoria = grupoConsultado["convocatoria"]?.ToString() ?? "";
+                consultaFechaFundacion = grupoConsultado["fecha_fundacion"]?.ToString() ?? "";
+                consultaUniversidad = grupoConsultado["universidad"]?.ToString() ?? "";
+                consultaInterno = grupoConsultado["interno"]?.ToString() ?? "";
+                consultaAmbito = grupoConsultado["ambito"]?.ToString() ?? "";
+                grupoEncontrado = true;
+            }
+            else
+            {
+                consultaNombre = "";
+                consultaUrlGruplac = "";
+                consultaCategoria = "";
+                consultaConvocatoria = "";
+                consultaFechaFundacion = "";
+                consultaUniversidad = "";
+                consultaInterno = "";
+                consultaAmbito = "";
+                grupoEncontrado = false;
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró ningún grupo de investigación con ese código.");
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al consultar el grupo: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al consultar el grupo de investigación. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ModificarGrupoConsultado()
+    {
+        PrepareForAddOrEdit(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["nombre"] = consultaNombre,
+            ["url_gruplac"] = consultaUrlGruplac,
+            ["categoria"] = consultaCategoria,
+            ["convocatoria"] = consultaNombre,
+            ["fecha_fundacion"] = consultaUrlGruplac,
+            ["universidad"] = consultaUniversidad,
+            ["interno"] = consultaInterno,
+            ["ambito"] = consultaAmbito
+        });
+
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarGrupoModal");
+    }
+
+    private async Task EliminarGrupoConsultado()
+    {
+        SetGrupoToDelete(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["nombre"] = consultaNombre,
+            ["url_gruplac"] = consultaUrlGruplac,
+            ["categoria"] = consultaCategoria,
+            ["convocatoria"] = consultaNombre,
+            ["fecha_fundacion"] = consultaUrlGruplac,
+            ["universidad"] = consultaUniversidad,
+            ["interno"] = consultaInterno,
+            ["ambito"] = consultaAmbito
+        });
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarGrupoModal");
+    }
+}

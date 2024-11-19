@@ -1,0 +1,354 @@
+@page "/sostenible"
+
+@using BlazorFrontEnd.Services
+
+@inject ApiService ApiService
+
+@inject IJSRuntime JSRuntime
+@inherits ValidacionAcceso
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestionar <b>desarrollo sostenible</b></h2>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#addSostenibleModal" class="btn btn-success" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit()">
+                            <i class="material-icons">&#xE147;</i> <span>Añadir Nuevo desarrollo sostenible</span>
+                        </a>
+
+                        <a href="#consultarSostenibleModal" class="btn btn-success" data-bs-toggle="modal" @onclick="PrepareForConsulta">
+                            <i class="material-icons">&#xE8B6;</i> <span>Consultar el desarrollo sostenible</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (sostenible == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!sostenible.Any())
+            {
+                <p>No hay objetivo de desarrollo sostenible registrados.</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Categoria</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sostenible in sostenible)
+                        {
+                            <tr>
+                                <td>@sostenible["id"]</td>
+                                <td>@sostenible["nombre"]</td>
+                                <td>@sostenible["categoria"]</td>
+                                <td>
+                                    <a href="#editSostenibleModal" class="edit" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit(sostenible)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
+                                    </a>
+
+                                    <a href="#deleteSostenibleModal" class="delete" data-bs-toggle="modal" @onclick="() => SetSostenibleToDelete(sostenible)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir/Editar objetivo de desarrollo sostenible -->
+<div class="modal fade" id="addSostenibleModal" tabindex="-1" role="dialog" aria-labelledby="addSostenibleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="@currentSostenible" OnValidSubmit="SaveSostenible">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSostenibleModalLabel">@(isNewSostenible ? "Añadir" : "Editar") objetivo de desarrollo sostenible</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <InputText class="form-control" @bind-Value="id"/>
+                        <ValidationMessage For="@(() => id)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <InputText class="form-control" @bind-Value="nombre" />
+                        <ValidationMessage For="@(() => nombre)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <InputText class="form-control" @bind-Value="categoria" />
+                        <ValidationMessage For="@(() => categoria)" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@(isNewSostenible ? "Añadir" : "Guardar")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar objetivo de desarrollo sostenible -->
+<div class="modal fade" id="deleteSostenibleModal" tabindex="-1" role="dialog" aria-labelledby="deleteSostenibleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSostenibleModalLabel">Eliminar objetivo de desarrollo sostenible</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar este objetivo de desarrollo sostenible?</p>
+                <p class="text-warning"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteSostenible">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Consultar objetivo de desarrollo sostenible -->
+<div class="modal fade" id="consultarSostenibleModal" tabindex="-1" role="dialog" aria-labelledby="consultarSostenibleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultarSostenibleModalLabel">Consultar el objetivo de desarrollo sostenible</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Código</label>
+                    <input type="text" class="form-control" @bind="consultaId" @bind:event="oninput"/>
+                </div>
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" class="form-control" @bind="consultaNombre" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <input type="text" class="form-control" @bind="consultaCategoria" readonly/>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConsultarSostenible">Consultar</button>
+                <button type="button" class="btn btn-warning" @onclick="ModificarSostenibleConsultada" disabled="@(!sostenibleEncontrada)">Modificar</button>
+                <button type="button" class="btn btn-danger" @onclick="EliminarSostenibleConsultada" disabled="@(!sostenibleEncontrada)">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<Dictionary<string, object>> sostenible = new List<Dictionary<string, object>>();
+    
+    private Dictionary<string, object> currentSostenible = new Dictionary<string, object>();
+
+    private bool isNewSostenible = true;
+
+    private bool sostenibleEncontrada = false;
+
+    private string id = "";
+
+    private string nombre = "";
+
+    private string categoria = "";
+
+    private string consultaId = "";
+
+    private string consultaNombre = "";
+
+    private string consultaCategoria = "";
+
+    private string path = "api/proyecto/objetivo_desarrollo_sostenible";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSostenible();
+    }
+
+    private async Task LoadSostenible()
+    {
+        try
+        {
+            sostenible = await ApiService.GetDataAsync(path);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar objetivo de desarrollo sostenible: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar objetivo de desarrollo sostenible. Por favor, intente nuevamente.");
+        }
+    }
+
+    private void PrepareForAddOrEdit(Dictionary<string, object>? sostenible = null)
+    {
+
+        isNewSostenible = sostenible == null;
+        currentSostenible = sostenible ?? new Dictionary<string, object>();
+
+        id = currentSostenible.TryGetValue("id", out var c) ? c?.ToString() ?? "" : "";
+        nombre = currentSostenible.TryGetValue("nombre", out var n) ? n?.ToString() ?? "" : "";
+        categoria = currentSostenible.TryGetValue("categoria", out var e) ? e?.ToString() ?? "" : "";
+
+        JSRuntime.InvokeVoidAsync("showModal", "addSostenibleModal");
+    }
+
+    private void PrepareForConsulta()
+    {
+        consultaId = "";
+        consultaNombre= "";
+        consultaCategoria= "";
+        sostenibleEncontrada = false;
+    }
+
+    private void SetSostenibleToDelete(Dictionary<string, object> sostenible)
+    {
+        currentSostenible = sostenible;
+        JSRuntime.InvokeVoidAsync("showModal", "deleteSostenibleModal");
+    }
+
+    private async Task SaveSostenible()
+    {
+        try
+        {
+            currentSostenible["id"] = id;
+            currentSostenible["nombre"] = nombre;
+            currentSostenible["categoria"] = categoria;
+            bool success;
+            if (isNewSostenible)
+            {
+                success = await ApiService.AddEntityAsync(path, currentSostenible);
+
+            }
+            else
+            {
+                success = await ApiService.EditEntityAsync(path + "/id", id, currentSostenible);
+            }
+
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("hideModal", "addSostenibleModal");
+                await LoadSostenible();
+
+                id = nombre = categoria = string.Empty;
+                currentSostenible = new Dictionary<string, object>();
+                isNewSostenible = true;
+
+                StateHasChanged();
+
+                await JSRuntime.InvokeVoidAsync("alert", "Operación realizada con éxito.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error al guardar el objetivo de desarrollo sostenible. Por favor, intente nuevamente.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar sostenible: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar el objetivo de desarrollo sostenible. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task DeleteSostenible()
+    {
+        try
+        {
+            if (currentSostenible.TryGetValue("id", out var idObj) && idObj is string idStr)
+            {
+                bool success = await ApiService.DeleteEntityAsync(path + "/id", idStr);
+
+                if (success)
+                {
+                    await JSRuntime.InvokeVoidAsync("hideModal", "deleteSostenibleModal");
+                    await LoadSostenible();
+                    await JSRuntime.InvokeVoidAsync("alert", "objetivo de desarrollo sostenible eliminado con éxito.");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar el objetivo de desarrollo sostenible. Por favor, intente nuevamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar el objetivo de desarrollo sostenible: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar el objetivo de desarrollo sostenible. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ConsultarSostenible()
+    {
+        try
+        {
+            var resultado = await ApiService.GetDataAsync(path+$"/id/{consultaId}");
+            if (resultado.Any())
+            {
+                var sostenibleConsultada = resultado.First();
+                consultaNombre = sostenibleConsultada["nombre"]?.ToString() ?? "";
+                consultaCategoria = sostenibleConsultada["categoria"]?.ToString() ?? "";
+                sostenibleEncontrada = true;
+            }
+            else
+            {
+                consultaId = "";
+                consultaNombre= "";
+                consultaCategoria= "";
+                sostenibleEncontrada = false;
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró ninguna objetivo de desarrollo sostenible con ese código.");
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al consultar sostenible: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al consultar el objetivo de desarrollo sostenible. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ModificarSostenibleConsultada()
+    {
+
+        PrepareForAddOrEdit(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["nombre"] = consultaNombre,
+            ["categoria"] = consultaCategoria
+        });
+
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarSostenibleModal");
+
+    }
+
+    private async Task EliminarSostenibleConsultada()
+    {
+        SetSostenibleToDelete(new Dictionary<string, object>
+        {
+            ["id"] = consultaId,
+            ["nombre"] = consultaNombre,
+            ["categoria"] = consultaCategoria
+        });
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarSostenibleModal");
+    }
+}

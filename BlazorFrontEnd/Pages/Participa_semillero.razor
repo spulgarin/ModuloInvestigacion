@@ -1,0 +1,397 @@
+@page "/participaS"
+
+@using BlazorFrontEnd.Services
+@inject ApiService ApiService
+@inject IJSRuntime JSRuntime
+@inherits ValidacionAcceso
+
+<div class="container-xl">
+    <div class="table-responsive">
+        <div class="table-wrapper">
+            <div class="table-title">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>Gestionar <b>Participantes semillero</b></h2>
+                    </div>
+                    <div class="col-sm-6">
+                        <a href="#addParticipaSModal" class="btn btn-success" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit()">
+                            <i class="material-icons">&#xE147;</i> <span>Añadir Nuevo Participantes semillero</span>
+                        </a>
+
+                        <a href="#consultarParticipaSModal" class="btn btn-success" data-bs-toggle="modal" @onclick="PrepareForConsulta">
+                            <i class="material-icons">&#xE8B6;</i> <span>Consultar Participantes semillero</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @if (participaS == null)
+            {
+                <p>Cargando...</p>
+            }
+            else if (!participaS.Any())
+            {
+                <p>No hay participantes e semillero registrados.</p>
+            }
+            else
+            {
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Docente</th>
+                            <th>Semillero</th>
+                            <th>Rol</th>
+                            <th>Fecha de inicio</th>
+                            <th>Fecha fin</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var participaS in participaS)
+                        {
+                            <tr>
+                                <td>@participaS["docente"]</td>
+                                <td>@participaS["semillero"]</td>
+                                <td>@participaS["rol"]</td>
+                                <td>@participaS["fecha_inicio"]</td>
+                                <td>@participaS["fecha_fin"]</td>
+                                <td>
+                                    <a href="#editParticipaSModal" class="edit" data-bs-toggle="modal" @onclick="() => PrepareForAddOrEdit(participaS)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Editar">&#xE254;</i>
+                                    </a>
+
+                                    <a href="#deleteParticipaSModal" class="delete" data-bs-toggle="modal" @onclick="() => SetParticipaSToDelete(participaS)">
+                                        <i class="material-icons" data-bs-toggle="tooltip" title="Eliminar">&#xE872;</i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Añadir/Editar ParticipaS -->
+<div class="modal fade" id="addParticipaSModal" tabindex="-1" role="dialog" aria-labelledby="addParticipaSModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <EditForm Model="@currentParticipaS" OnValidSubmit="SaveParticipaS">
+                <DataAnnotationsValidator />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addParticipaSModalLabel">@(isNewParticipaS ? "Añadir" : "Editar") Participantes semillero</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Código</label>
+                        <InputText class="form-control" @bind-Value="docente"/>
+                        <ValidationMessage For="@(() => docente)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Titulo</label>
+                        <InputText class="form-control" @bind-Value="semillero" />
+                        <ValidationMessage For="@(() => semillero)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Resumen</label>
+                        <InputText class="form-control" @bind-Value="rol" />
+                        <ValidationMessage For="@(() => rol)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de inicio</label>
+                        <InputText class="form-control" @bind-Value="fecha_inicio" />
+                        <ValidationMessage For="@(() => fecha_inicio)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha fin</label>
+                        <InputText class="form-control" @bind-Value="fecha_fin" />
+                        <ValidationMessage For="@(() => fecha_fin)" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">@(isNewParticipaS ? "Añadir" : "Guardar")</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar ParticipaS -->
+<div class="modal fade" id="deleteParticipaSModal" tabindex="-1" role="dialog" aria-labelledby="deleteParticipaSModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteParticipaSModalLabel">Eliminar Participantes semillero</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar este participante?</p>
+                <p class="text-warning"><small>Esta acción no se puede deshacer.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" @onclick="DeleteParticipaS">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Consultar ParticipaS -->
+<div class="modal fade" id="consultarParticipaSModal" tabindex="-1" role="dialog" aria-labelledby="consultarParticipaSModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="consultarParticipaSModalLabel">Consultar participante</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Docente</label>
+                    <input type="text" class="form-control" @bind="consultaDocente" @bind:event="oninput"/>
+                </div>
+                <div class="form-group">
+                    <label>Semillero</label>
+                    <input type="text" class="form-control" @bind="consultaSemillero" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <input type="text" class="form-control" @bind="consultaRol" readonly/>
+                </div>
+                <div class="form-group">
+                    <label>Fecha de inicio</label>
+                    <input type="text" class="form-control" @bind="consultaFecha_inicio" readonly />
+                </div>
+                <div class="form-group">
+                    <label>Fecha fin</label>
+                    <input type="text" class="form-control" @bind="consultaFecha_fin" readonly />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConsultarParticipaS">Consultar</button>
+                <button type="button" class="btn btn-warning" @onclick="ModificarParticipaSConsultada" disabled="@(!participaSEncontrada)">Modificar</button>
+                <button type="button" class="btn btn-danger" @onclick="EliminarParticipaSConsultada" disabled="@(!participaSEncontrada)">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<Dictionary<string, object>> participaS = new List<Dictionary<string, object>>();
+    
+    private Dictionary<string, object> currentParticipaS = new Dictionary<string, object>();
+
+    private bool isNewParticipaS = true;
+
+    private bool participaSEncontrada = false;
+
+    private string docente = "";
+
+    private string semillero = "";
+
+    private string rol = "";
+
+    private string fecha_inicio = "";
+
+    private string fecha_fin = "";
+
+    private string consultaDocente = "";
+
+    private string consultaSemillero = "";
+
+    private string consultaRol = "";
+
+    private string consultaFecha_inicio = "";
+
+    private string consultaFecha_fin = "";
+
+    private string path = "api/s/participa_semillero";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadParticipaS();
+    }
+
+    private async Task LoadParticipaS()
+    {
+        try
+        {
+            participaS = await ApiService.GetDataAsync(path);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar participa_semillero: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al cargar participa_semillero. Por favor, intente nuevamente.");
+        }
+    }
+
+    private void PrepareForAddOrEdit(Dictionary<string, object>? participaS = null)
+    {
+
+        isNewParticipaS = participaS == null;
+        currentParticipaS = participaS ?? new Dictionary<string, object>();
+
+        docente = currentParticipaS.TryGetValue("docente", out var c) ? c?.ToString() ?? "" : "";
+        semillero = currentParticipaS.TryGetValue("semillero", out var n) ? n?.ToString() ?? "" : "";
+        rol = currentParticipaS.TryGetValue("rol", out var e) ? e?.ToString() ?? "" : "";
+        fecha_inicio = currentParticipaS.TryGetValue("fecha_inicio", out var j) ? j?.ToString() ?? "" : "";
+        fecha_fin = currentParticipaS.TryGetValue("fecha_fin", out var h) ? h?.ToString() ?? "" : "";
+
+        JSRuntime.InvokeVoidAsync("showModal", "addParticipaSModal");
+    }
+
+    private void PrepareForConsulta()
+    {
+        consultaDocente = "";
+        consultaSemillero= "";
+        consultaRol= "";
+        consultaFecha_inicio = "";
+        consultaFecha_fin = "";
+        participaSEncontrada = false;
+    }
+
+    private void SetParticipaSToDelete(Dictionary<string, object> participaS)
+    {
+        currentParticipaS = participaS;
+        JSRuntime.InvokeVoidAsync("showModal", "deleteParticipaSModal");
+    }
+
+    private async Task SaveParticipaS()
+    {
+        try
+        {
+            currentParticipaS["docente"] = docente;
+            currentParticipaS["semillero"] = semillero;
+            currentParticipaS["rol"] = rol;
+            currentParticipaS["fecha_inicio"] = fecha_inicio;
+            currentParticipaS["fecha_fin"] = fecha_fin;
+            bool success;
+            if (isNewParticipaS)
+            {
+                success = await ApiService.AddEntityAsync(path, currentParticipaS);
+
+            }
+            else
+            {
+                success = await ApiService.EditEntityAsync(path + "/id", docente, currentParticipaS);
+            }
+
+            if (success)
+            {
+                await JSRuntime.InvokeVoidAsync("hideModal", "addParticipaSModal");
+                await LoadParticipaS();
+
+                docente = semillero = rol = fecha_inicio = fecha_fin = string.Empty;
+                currentParticipaS = new Dictionary<string, object>();
+                isNewParticipaS = true;
+
+                StateHasChanged();
+
+                await JSRuntime.InvokeVoidAsync("alert", "Operación realizada con éxito.");
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la participa_semillero. Por favor, intente nuevamente.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al guardar participa_semillero: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al guardar la participa_semillero. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task DeleteParticipaS()
+    {
+        try
+        {
+            if (currentParticipaS.TryGetValue("docente", out var idObj) && idObj is string idStr)
+            {
+                bool success = await ApiService.DeleteEntityAsync(path + "/docente", idStr);
+
+                if (success)
+                {
+                    await JSRuntime.InvokeVoidAsync("hideModal", "deleteParticipaSModal");
+                    await LoadParticipaS();
+                    await JSRuntime.InvokeVoidAsync("alert", "participa_semillero eliminada con éxito.");
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la participa_semillero. Por favor, intente nuevamente.");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar participa_semillero: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al eliminar la participa_semillero. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ConsultarParticipaS()
+    {
+        try
+        {
+            var resultado = await ApiService.GetDataAsync(path+$"/id/{consultaDocente}");
+            if (resultado.Any())
+            {
+                var participaSConsultada = resultado.First();
+                consultaDocente = participaSConsultada["docente"]?.ToString() ?? "";
+                consultaSemillero = participaSConsultada["semillero"]?.ToString() ?? "";
+                consultaRol = participaSConsultada["rol"]?.ToString() ?? "";
+                consultaFecha_inicio = participaSConsultada["fecha_inicio"]?.ToString() ?? "";
+                consultaFecha_fin = participaSConsultada["fecha_fin"]?.ToString() ?? "";
+                participaSEncontrada = true;
+            }
+            else
+            {
+                consultaDocente = "";
+                consultaSemillero= "";
+                consultaRol= "";
+                consultaFecha_inicio = "";
+                consultaFecha_fin = "";
+                participaSEncontrada = false;
+                await JSRuntime.InvokeVoidAsync("alert", "No se encontró ninguna participa_semillero con ese código.");
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al consultar participa_semillero: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", "Error al consultar la participa_semillero. Por favor, intente nuevamente.");
+        }
+    }
+
+    private async Task ModificarParticipaSConsultada()
+    {
+
+        PrepareForAddOrEdit(new Dictionary<string, object>
+        {
+            ["docente"] = consultaDocente,
+            ["semillero"] = consultaSemillero,
+            ["rol"] = consultaRol,
+            ["fecha_inicio"] = consultaFecha_inicio,
+            ["fecha_fin"] = consultaFecha_fin
+        });
+
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarParticipaSModal");
+
+    }
+
+    private async Task EliminarParticipaSConsultada()
+    {
+        SetParticipaSToDelete(new Dictionary<string, object>
+        {
+            ["docente"] = consultaDocente,
+            ["semillero"] = consultaSemillero,
+            ["rol"] = consultaRol,
+            ["fecha_inicio"] = consultaFecha_inicio,
+            ["fecha_fin"] = consultaFecha_fin
+        });
+        await JSRuntime.InvokeVoidAsync("hideModal", "consultarParticipaSModal");
+    }
+}

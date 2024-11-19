@@ -44,7 +44,7 @@ GO
 
 -- Tabla linea_investigacion
 CREATE TABLE linea_investigacion (
-  id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+  id INT NOT NULL PRIMARY KEY,
   nombre NVARCHAR(45) NOT NULL,
   descripcion NVARCHAR(256) NOT NULL
 );

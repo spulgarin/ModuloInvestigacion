@@ -1,0 +1,217 @@
+@page "/login"
+@using System.Net.Http.Json
+@inject HttpClient Http 
+@inject NavigationManager Navigation 
+@inject IJSRuntime JSRuntime 
+
+
+<section class="vh-100" style="background-color: #ffffff;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="card shadow-2-strong" style="border-radius: 1rem;">
+          <div class="card-body p-5 text-center">
+            <EditForm Model="@modeloLogin" OnValidSubmit="ManejarLogin">
+
+            <h3 class="mb-5">Sign in</h3>
+
+            <div data-mdb-input-init class="form-outline mb-4">
+              <InputText id="email" class="form-control form-control-lg" 
+                       @bind-Value="modeloLogin.Correo" placeholder="Enter a valid email address" />
+              <label class="form-label" for="typeEmailX-2">Email</label>
+              <ValidationMessage For="@(() => modeloLogin.Correo)" />
+            </div>
+
+            <div data-mdb-input-init class="form-outline mb-4">
+              <InputText id="contraseña" type="password" class="form-control form-control-lg" 
+                       @bind-Value="modeloLogin.Contrasena" placeholder="Enter password" />
+              <label class="form-label" for="typePasswordX-2">Password</label>
+              <ValidationMessage For="@(() => modeloLogin.Contrasena)" />
+            </div>
+
+            <!-- Checkbox -->
+            <div class="form-check d-flex justify-content-start mb-4">
+              <input class="form-check-input" type="checkbox" value="" id="form1Example3" />
+              <label class="form-check-label" for="form1Example3"> Remember password </label>
+            </div>
+
+            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg btn-block" type="submit">Login</button>
+
+            <hr class="my-4">
+
+            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-lg btn-block btn-primary" style="background-color: #dd4b39; border-color: #ffffff;"
+              type="submit"><i class="fab fa-google me-2"></i> Sign in with google</button>
+            <button data-mdb-button-init data-mdb-ripple-init class="btn btn-lg btn-block btn-primary mb-2" style="background-color: #3b5998; border-color: #ffffff;"
+              type="submit"><i class="fab fa-facebook-f me-2"></i>Sign in with facebook</button>
+            </EditForm>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+@code{
+    private ModeloLogin modeloLogin = new ModeloLogin();
+
+    private async Task ManejarLogin()
+    {
+        try
+        {
+            // Crea un diccionario con los datos de verificación de usuario y contraseña.
+            var datosVerificar = new Dictionary<string, string>
+            {
+                { "campoUsuario", "email" },
+                { "campoContrasena", "contrasena" },
+                { "valorUsuario", modeloLogin.Correo },
+                { "valorContrasena", modeloLogin.Contrasena }
+            };
+
+            // Envía una solicitud POST al backend para verificar el usuario y contraseña.
+            var respuestaVerificar = await Http.PostAsJsonAsync(
+                "http://localhost:5184/api/proyecto/usuario/verificar-contrasena", 
+                datosVerificar
+            );
+
+            // Si la verificación es exitosa, procede a obtener los roles del usuario.
+            if (respuestaVerificar.IsSuccessStatusCode)
+            {
+                // Crea un objeto JSON para la consulta de roles.
+                var jsonConsultaRoles = new
+                {
+                    consulta = @"SELECT u.email AS EmailUsuario, r.nombre AS NombreRol 
+                                FROM usuario u 
+                                INNER JOIN rol_usuario ru ON u.email = ru.fkemail 
+                                INNER JOIN rol r ON ru.fkidrol = r.id 
+                                WHERE u.email = @EmailUsuario",
+                    parametros = new { EmailUsuario = modeloLogin.Correo }
+                };
+
+                // Envía una solicitud POST para obtener los roles asociados al usuario.
+                var respuestaRoles = await Http.PostAsJsonAsync(
+                    "http://localhost:5184/api/proyecto/tabla/ejecutar-consulta-parametrizada", 
+                    jsonConsultaRoles
+                );
+
+                if (respuestaRoles.IsSuccessStatusCode)
+                {
+                    // Lee la lista de roles del usuario desde la respuesta.
+                    var rolesList = await respuestaRoles.Content
+                        .ReadFromJsonAsync<List<Dictionary<string, object>>>();
+
+                    if (rolesList?.Any() == true)
+                    {
+                        // Almacena el correo electrónico en sessionStorage para la sesión actual.
+                        await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "usuarioEmail", modeloLogin.Correo);
+
+                        // Recorre cada rol y los almacena en sessionStorage.
+                        foreach (var rol in rolesList)
+                        {
+                            if (rol.TryGetValue("NombreRol", out object? nombreRolObj) && 
+                                nombreRolObj is not null)
+                            {
+                                var nombreRol = nombreRolObj.ToString();
+                                if (!string.IsNullOrEmpty(nombreRol))
+                                {
+                                    // Almacena el rol en sessionStorage.
+                                    await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", $"rol_{nombreRol}", nombreRol);
+
+                                    // Crea una consulta para obtener las rutas asociadas al rol.
+                                    var jsonConsultaRutaRol = new
+                                    {
+                                        consulta = "SELECT Ruta FROM RutaRol WHERE Rol = @Rol",
+                                        parametros = new { Rol = nombreRol }
+                                    };
+
+                                    // Envía una solicitud para obtener las rutas permitidas del rol.
+                                    var respuestaRutaRol = await Http.PostAsJsonAsync(
+                                        "http://localhost:5184/api/proyecto/tabla/ejecutar-consulta-parametrizada", 
+                                        jsonConsultaRutaRol
+                                    );
+
+                                    if (respuestaRutaRol.IsSuccessStatusCode)
+                                    {
+                                        // Lee la lista de rutas permitidas desde la respuesta.
+                                        var rutasList = await respuestaRutaRol.Content
+                                            .ReadFromJsonAsync<List<Dictionary<string, object>>>();
+
+                                        if (rutasList != null)
+                                        {
+                                            // Recorre cada ruta y la almacena en sessionStorage.
+                                            foreach (var ruta in rutasList)
+                                            {
+                                                if (ruta.TryGetValue("Ruta", out object? rutaObj) && 
+                                                    rutaObj is not null)
+                                                {
+                                                    var nombreRuta = rutaObj.ToString();
+                                                    if (!string.IsNullOrEmpty(nombreRuta))
+                                                    {
+                                                        await JSRuntime.InvokeVoidAsync(
+                                                            "sessionStorage.setItem", 
+                                                            $"ruta_{nombreRuta}", 
+                                                            nombreRuta
+                                                        );
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Redirige al usuario a la página de inicio después de un login exitoso.
+                        Navigation.NavigateTo("/");
+                    }
+                    else
+                    {
+                        // Muestra una alerta si no se encuentran roles para el usuario.
+                        await JSRuntime.InvokeVoidAsync(
+                            "alert", 
+                            "No se encontraron roles para el usuario."
+                        );
+                    }
+                }
+                else
+                {
+                    // Muestra un mensaje de error en caso de falla al obtener roles.
+                    var errorContent = await respuestaRoles.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error al obtener roles: {errorContent}");
+                    await JSRuntime.InvokeVoidAsync(
+                        "alert", 
+                        "Error al obtener los roles del usuario."
+                    );
+                }
+            }
+            else if (respuestaVerificar.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                // Muestra un mensaje de error si la autenticación falla.
+                await JSRuntime.InvokeVoidAsync(
+                    "alert", 
+                    "Usuario o contraseña incorrectos."
+                );
+            }
+            else
+            {
+                // Muestra un mensaje de error genérico si ocurre otro tipo de error.
+                await JSRuntime.InvokeVoidAsync(
+                    "alert", 
+                    "Error al iniciar sesión. Por favor, intente de nuevo."
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            // Maneja cualquier excepción inesperada que ocurra en el proceso de login.
+            Console.WriteLine($"Error en el proceso de login: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Error inesperado: {ex.Message}");
+        }
+    }
+
+    public class ModeloLogin
+    {
+        public string Correo { get; set; } = string.Empty; // Campo para el correo electrónico del usuario.
+        public string Contrasena { get; set; } = string.Empty; // Campo para la contraseña del usuario.
+    }
+
+}
